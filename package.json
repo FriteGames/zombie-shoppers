@@ -1,0 +1,18 @@
+{
+  "name": "zombieshoppers-ts",
+  "version": "0.0.1",
+  "description": "consumers are zombies",
+  "main": "./src/app.ts",
+  "scripts": {
+    "test": "test"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "typescript": "^2.6.2"
+  },
+  "dependencies": {
+    "@types/mousetrap": "^1.6.0",
+    "mousetrap": "^1.6.1"
+  }
+}
