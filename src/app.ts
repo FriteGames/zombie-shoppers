@@ -25,7 +25,7 @@ function init() {
 
   canvas.addEventListener("click", handleClick);
 
-  // window.setInterval(spawnZombies, 3000);
+  window.setInterval(spawnZombie, 1000);
   requestAnimationFrame(gameLoop);
 }
 
@@ -45,11 +45,13 @@ function drawPlayer(player) {
 }
 
 function drawWeapon(weapon) {
-  ctx.save();
-  ctx.translate(weapon.x, weapon.y + weapon.height / 2);
-  ctx.rotate((weapon.angle + 180) * Math.PI / 180);
-  drawRect(0, 0, weapon.width, weapon.height, weapon.color);
-  ctx.restore();
+  if (!player.carryingItem) {
+    ctx.save();
+    ctx.translate(weapon.x, weapon.y + weapon.height / 2);
+    ctx.rotate((weapon.angle + 180) * Math.PI / 180);
+    drawRect(0, 0, weapon.width, weapon.height, weapon.color);
+    ctx.restore();
+  }
 }
 
 function drawBullets(bullets) {
@@ -209,12 +211,30 @@ function updateBullets() {
   }
 }
 
-function spawnZombies() {
-  let randX = 0;
-  let randY = 0;
-  let zombie = new Zombie(randX, randY);
+function spawnZombie() {
+  let q = Math.random();
+  let r = Math.random();
+  let x;
+  let y;
+  if (q < 0.25) {
+    // top
+    x = r * WORLD_WIDTH / 2;
+    y = -100;
+  } else if (q < 0.5) {
+    // bottom
+    x = r * WORLD_WIDTH / 2;
+    y = 100 + WORLD_HEIGHT;
+  } else if (q < 0.75) {
+    // left
+    x = -100;
+    y = r * WORLD_HEIGHT;
+  }
+  let zCoords = toScreenCoordinates(x, y);
+  let zombie = new Zombie(zCoords.x, zCoords.y);
   zombies.push(zombie);
 }
+
+window.spawnZombie = spawnZombie;
 
 function updateZombies() {
   for (var z of zombies) {
@@ -266,6 +286,15 @@ function overlaps(r1, r2) {
     r1.y < r2.y + r2.h &&
     r1.y + r1.h > r2.y
   );
+}
+
+function toScreenCoordinates(x, y) {
+  let shift_x = background.x + x;
+  let shift_y = background.y + y;
+  return {
+    x: shift_x,
+    y: shift_y
+  };
 }
 
 function toWorldCoordinates(x, y) {
@@ -320,7 +349,7 @@ function handleTargetReached() {
 
 function gameLoop(timestamp) {
   ctx.clearRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
-  drawRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, "black");
+  drawRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, "#666");
 
   updatePlayer();
   updateWeapon();
