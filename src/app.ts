@@ -25,7 +25,7 @@ function init() {
 
   canvas.addEventListener("click", handleClick);
 
-  window.setInterval(spawnZombies, 3000);
+  // window.setInterval(spawnZombies, 3000);
   requestAnimationFrame(gameLoop);
 }
 
@@ -171,6 +171,20 @@ function updatePlayer() {
     player.y += PLAYER_SPEED;
   }
 
+  let pwc = toWorldCoordinates(player.x, player.y);
+  if (pwc.x < 0) {
+    player.x = background.x;
+  }
+  if (pwc.x > WORLD_WIDTH - player.width) {
+    player.x = background.x + background.width - player.width;
+  }
+  if (pwc.y < 0) {
+    player.y = background.y;
+  }
+  if (pwc.y > WORLD_HEIGHT - player.height) {
+    player.y = background.y + background.height - player.height;
+  }
+
   if (player.carryingItem) {
     item.x = player.x;
     item.y = player.y;
@@ -254,7 +268,7 @@ function overlaps(r1, r2) {
   );
 }
 
-function getWorldCoordinates(x, y) {
+function toWorldCoordinates(x, y) {
   let shift_x = x - background.x;
   let shift_y = y - background.y;
   return {
@@ -298,7 +312,7 @@ function handleItemPickup() {
 
 function handleTargetReached() {
   if (player.carryingItem) {
-    if (getWorldCoordinates(player.x, player.y).x < 0) {
+    if (toWorldCoordinates(player.x, player.y).x < 0) {
       l("did it");
     }
   }
@@ -306,6 +320,7 @@ function handleTargetReached() {
 
 function gameLoop(timestamp) {
   ctx.clearRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+  drawRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, "black");
 
   updatePlayer();
   updateWeapon();
