@@ -96,7 +96,7 @@ let weapon = {
   y: 100,
   width: 8,
   height: 32,
-  color: "green",
+  color: "brown",
   angle: 0,
   crosshair: { x: 0, y: 0 }
 };
@@ -135,6 +135,12 @@ let item = {
   width: 30,
   height: 30
 };
+
+function drawGoal(goal) {
+  drawRect(goal.x, goal.y, goal.width, goal.height, "green");
+}
+
+let goal = { x: 30, y: WORLD_HEIGHT / 2 - 50, width: 100, height: 100 };
 
 const PLAYER_SPEED = 10;
 const BULLET_SPEED = 20;
@@ -317,6 +323,8 @@ function setCameraPosition(x, y) {
   background.y += shift_y;
   item.x += shift_x;
   item.y += shift_y;
+  goal.x += shift_x;
+  goal.y += shift_y;
   for (var z of zombies) {
     z.x += shift_x;
     z.y += shift_y;
@@ -341,7 +349,7 @@ function handleItemPickup() {
 
 function handleTargetReached() {
   if (player.carryingItem) {
-    if (toWorldCoordinates(player.x, player.y).x < 0) {
+    if (overlaps(getRect(goal), getRect(player))) {
       l("did it");
     }
   }
@@ -361,6 +369,7 @@ function gameLoop(timestamp) {
   setCameraPosition(player.x, player.y);
 
   drawBackground(background);
+  drawGoal(goal);
   drawPlayer(player);
   drawWeapon(weapon);
   drawBullets(bullets);
