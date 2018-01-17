@@ -2,8 +2,11 @@ import * as Mousetrap from "mousetrap";
 
 let canvas;
 let ctx;
+let alive = true;
 const SCREEN_WIDTH = 1080;
 const SCREEN_HEIGHT = 720;
+const WORLD_WIDTH = SCREEN_WIDTH * 1.5;
+const WORLD_HEIGHT = SCREEN_HEIGHT * 1.5;
 
 function l(...args) {
   console.log(...args);
@@ -20,12 +23,16 @@ function init() {
     weapon.crosshair = pos;
   });
 
-  canvas.addEventListener("click", e => {
-    bullets.push(new Bullet(weapon.x, weapon.y, weapon.angle));
-  });
+  canvas.addEventListener("click", handleClick);
 
   window.setInterval(spawnZombies, 3000);
   requestAnimationFrame(gameLoop);
+}
+
+function handleClick() {
+  if (!player.carryingItem) {
+    bullets.push(new Bullet(weapon.x, weapon.y, weapon.angle));
+  }
 }
 
 function drawRect(x, y, width, height, color) {
@@ -67,8 +74,21 @@ function drawBackground(background) {
   );
 }
 
+function drawItem(item) {
+  drawRect(item.x, item.y, 30, 30, "gold");
+}
+
 const pressedKeys = new Set();
-let player = { x: 300, y: 300, width: 32, height: 64, color: "magenta" };
+
+let player = {
+  x: 300,
+  y: 300,
+  width: 32,
+  height: 64,
+  color: "magenta",
+  carryingItem: false
+};
+
 let weapon = {
   x: 100,
   y: 100,
@@ -79,11 +99,15 @@ let weapon = {
   crosshair: { x: 0, y: 0 }
 };
 
+function getRect(obj) {
+  return { x: obj.x, y: obj.y, w: obj.width, h: obj.height };
+}
+
 let background = {
   x: 0,
   y: 0,
-  width: SCREEN_WIDTH * 1.5,
-  height: SCREEN_HEIGHT * 1.5
+  width: WORLD_WIDTH,
+  height: WORLD_HEIGHT
 };
 
 let zombies = [];
@@ -102,6 +126,13 @@ let Bullet = function(x, y, angle) {
   this.height = 8;
 };
 let bullets = [];
+
+let item = {
+  x: WORLD_WIDTH - 60,
+  y: WORLD_HEIGHT / 2 - 15,
+  width: 30,
+  height: 30
+};
 
 const PLAYER_SPEED = 10;
 const BULLET_SPEED = 20;
@@ -139,6 +170,11 @@ function updatePlayer() {
   if (pressedKeys.has("down")) {
     player.y += PLAYER_SPEED;
   }
+
+  if (player.carryingItem) {
+    item.x = player.x;
+    item.y = player.y;
+  }
 }
 
 function updateWeapon() {
@@ -168,13 +204,26 @@ function spawnZombies() {
 
 function updateZombies() {
   for (var z of zombies) {
-    let dx = z.x - player.x;
-    let dy = player.y - z.y;
+    let dx = z.x - item.x;
+    let dy = item.y - z.y;
     let angle = Math.atan2(dy, dx);
     let vx = -1 * ZOMBIE_SPEED * Math.cos(angle);
     let vy = ZOMBIE_SPEED * Math.sin(angle);
     z.x += vx;
     z.y += vy;
+  }
+}
+
+function handleZombieCollision() {
+  for (var z of zombies) {
+    if (overlaps(getRect(z), getRect(player))) {
+      alive = false;
+      return;
+    }
+    if (overlaps(getRect(z), getRect(item))) {
+      alive = false;
+      return;
+    }
   }
 }
 
@@ -205,6 +254,15 @@ function overlaps(r1, r2) {
   );
 }
 
+function getWorldCoordinates(x, y) {
+  let shift_x = x - background.x;
+  let shift_y = y - background.y;
+  return {
+    x: shift_x,
+    y: shift_y
+  };
+}
+
 function setCameraPosition(x, y) {
   let shift_x = SCREEN_WIDTH / 2 - x;
   let shift_y = SCREEN_HEIGHT / 2 - y;
@@ -214,6 +272,8 @@ function setCameraPosition(x, y) {
   weapon.y += shift_y;
   background.x += shift_x;
   background.y += shift_y;
+  item.x += shift_x;
+  item.y += shift_y;
   for (var z of zombies) {
     z.x += shift_x;
     z.y += shift_y;
@@ -221,6 +281,26 @@ function setCameraPosition(x, y) {
   for (var b of bullets) {
     b.x += shift_x;
     b.y += shift_y;
+  }
+}
+
+Mousetrap.bind("space", handleItemPickup, "keydown");
+
+function handleItemPickup() {
+  if (!player.carryingItem) {
+    if (overlaps(getRect(player), getRect(item))) {
+      player.carryingItem = true;
+    }
+  } else {
+    player.carryingItem = false;
+  }
+}
+
+function handleTargetReached() {
+  if (player.carryingItem) {
+    if (getWorldCoordinates(player.x, player.y).x < 0) {
+      l("did it");
+    }
   }
 }
 
@@ -232,7 +312,8 @@ function gameLoop(timestamp) {
   updateBullets();
   updateZombies();
   handleBulletCollisions();
-
+  handleZombieCollision();
+  handleTargetReached();
   setCameraPosition(player.x, player.y);
 
   drawBackground(background);
@@ -240,8 +321,13 @@ function gameLoop(timestamp) {
   drawWeapon(weapon);
   drawBullets(bullets);
   drawZombies(zombies);
+  drawItem(item);
 
-  requestAnimationFrame(gameLoop);
+  if (alive) {
+    requestAnimationFrame(gameLoop);
+  } else {
+    console.log("dead.");
+  }
 }
 
 window.onload = init;
