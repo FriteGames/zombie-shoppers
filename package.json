@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@types/mousetrap": "^1.6.0",
+    "immutable": "^3.8.2",
     "mousetrap": "^1.6.1"
   }
 }
