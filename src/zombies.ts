@@ -28,15 +28,12 @@ function zombiePosition(zPos: Position, pPos: Position): Position {
 export const zombieReducer = function(zombies: Zombies, state: State, action: Action): Zombies {
   if (action.type === Actions.TIMESTEP) {
     const delta = action.delta;
-
+    const shouldSpawn = zombies.lastSpawn > ZOMBIE_SPAWN_DELAY;
+    const lastSpawn = shouldSpawn ? 0 : zombies.lastSpawn + delta;
     let spawnedZombies: Array<Zombie> = [...zombies.zombies];
-    let lastSpawn: number = zombies.lastSpawn;
 
-    if (zombies.lastSpawn > ZOMBIE_SPAWN_DELAY) {
+    if (shouldSpawn) {
       spawnedZombies.push(spawn());
-      lastSpawn = 0;
-    } else {
-      lastSpawn += delta;
     }
 
     spawnedZombies = spawnedZombies.map(zombie => {
@@ -45,16 +42,16 @@ export const zombieReducer = function(zombies: Zombies, state: State, action: Ac
     });
 
     return {
-      ...zombies,
       lastSpawn,
       zombies: spawnedZombies
     };
   } else if (action.type === Actions.COLLISION) {
     if (action.collided === "ZOMBIE_BULLET") {
       let spawnedZombies: Array<Zombie> = [...zombies.zombies];
+      spawnedZombies.splice(action.data.zombie, 1);
       return {
         ...zombies,
-        zombies: spawnedZombies.splice(action.data.zombie)
+        zombies: spawnedZombies
       };
     }
   }

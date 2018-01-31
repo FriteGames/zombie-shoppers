@@ -170,6 +170,7 @@ function gameLoop(timestamp) {
   let delta = timestamp - previousTimestamp;
 
   // check for collisions right here
+  checkCollisions(state);
   dispatch({ type: Actions.TIMESTEP, delta });
   draw(ctx, state);
 
@@ -180,7 +181,25 @@ function gameLoop(timestamp) {
 window.onload = init;
 
 function checkCollisions(state: State) {
-  dispatch({ type: Actions.COLLISION, collided: "ZOMBIE_BULLET", data: { zombie: 1 } });
+  for (var z of state.zombies.zombies) {
+    for (var b of state.bullets.bullets) {
+      if (
+        overlaps(
+          { x: z.position.x, y: z.position.y, width: WIDTH.zombie, height: HEIGHT.zombie },
+          { x: b.position.x, y: b.position.y, width: WIDTH.bullet, height: HEIGHT.bullet }
+        )
+      ) {
+        dispatch({
+          type: Actions.COLLISION,
+          collided: "ZOMBIE_BULLET",
+          data: {
+            zombie: state.zombies.zombies.indexOf(z),
+            bullet: state.bullets.bullets.indexOf(b)
+          }
+        });
+      }
+    }
+  }
 }
 
 window._dispatch = dispatch;

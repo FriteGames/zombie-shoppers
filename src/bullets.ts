@@ -37,6 +37,14 @@ export function bulletReducer(bullets: Bullets, state: State, action: Action): B
       ...bullets,
       bullets: bulletsFired
     };
+  } else if (action.type === Actions.COLLISION) {
+    if (action.collided === "ZOMBIE_BULLET") {
+      let bulletsFired = [...bullets.bullets];
+      bulletsFired.splice(action.data.bullet, 1);
+      return {
+        bullets: bulletsFired
+      };
+    }
   }
 
   return bullets;
