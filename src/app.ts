@@ -1,50 +1,102 @@
 import * as Mousetrap from "mousetrap";
 import { WORLD_WIDTH, HEIGHT, WORLD_HEIGHT, SCREEN_WIDTH, SCREEN_HEIGHT, WIDTH } from "./config";
 import { draw } from "./draw";
-import { zombies } from "./zombies";
+import { zombieReducer } from "./zombies";
 import { overlaps } from "./utils";
-import { player } from "./player";
-import { bullet } from "./bullets";
+import { playerReducer } from "./player";
+import { bulletReducer } from "./bullets";
+import { State, Action, Actions, KeyboardAction, Position } from "./types";
 
 let canvas;
 let ctx;
-let input = {
-  mousePos: { x: 0, y: 0 },
-  mousepress: false,
-  left: false,
-  right: false,
-  up: false,
-  down: false
-};
 
-let state = {
+const initialState: State = {
   player: {
-    x: 0,
-    y: 0,
-    touchingItem: false,
-    touchingZombie: false,
+    position: { x: 0, y: 0 },
+    health: 100,
+    carryingItem: false,
     weapon: {
-      x: 0,
-      y: 0,
       angle: 0
-    }
+    },
+    vx: 0,
+    vy: 0
   },
-  bullets: [],
-  zombie: {
+  bullets: {
+    bullets: []
+  },
+  zombies: {
     lastSpawn: 0,
     zombies: []
   },
   item: {
-    x: WORLD_WIDTH - HEIGHT.item * 2,
-    y: WORLD_HEIGHT / 2 - HEIGHT.item / 2
+    position: {
+      x: WORLD_WIDTH - HEIGHT.item * 2,
+      y: WORLD_HEIGHT / 2 - HEIGHT.item / 2
+    }
   },
   background: {
-    x: 0,
-    y: 0,
+    position: {
+      x: 0,
+      y: 0
+    },
     width: WORLD_WIDTH,
     height: WORLD_HEIGHT
-  }
+  },
+  mousePosition: { x: 0, y: 0 },
+  mousePressed: false,
+  keysPressed: { w: false, a: false, s: false, d: false }
 };
+
+let state: State = initialState;
+
+function dispatch(action) {
+  state = reducer(state, action);
+}
+
+function reducer(state: State = initialState, action: Action): State {
+  return {
+    ...state,
+    player: playerReducer(state.player, state, action),
+    mousePosition: mousePositionReducer(state.mousePosition, state, action),
+    mousePressed: mousePressedReducer(state.mousePressed, state, action),
+    keysPressed: keyPressedReducer(state.keysPressed, state, action),
+    zombies: zombieReducer(state.zombies, state, action),
+    bullets: bulletReducer(state.bullets, state, action)
+  };
+}
+
+function keyPressedReducer(
+  keysPressed: { [key: string]: boolean },
+  state,
+  action
+): { [key: string]: boolean } {
+  if (action.type === Actions.KEYBOARD) {
+    if (action.direction === "down") {
+      return { ...keysPressed, [action.key]: true };
+    } else if (action.direction === "up") {
+      return { ...keysPressed, [action.key]: false };
+    }
+  }
+
+  return keysPressed;
+}
+
+function mousePressedReducer(mousePressed: boolean, state, action): boolean {
+  if (action.type === Actions.MOUSE_CLICK) {
+    if (action.direction === "mousedown") {
+      return true;
+    }
+    return false;
+  }
+  return mousePressed;
+}
+
+function mousePositionReducer(mousePosition: Position, state, action): Position {
+  if (action.type == Actions.MOUSE_MOVE) {
+    return action.position;
+  }
+  return mousePosition;
+}
 
 function getMousePos(e) {
   let rect = canvas.getBoundingClientRect();
@@ -54,72 +106,59 @@ function getMousePos(e) {
   };
 }
 
-function initMousetrap(key, action) {
-  Mousetrap.bind(key, () => {
-    input[action] = true;
-  });
-  Mousetrap.bind(
-    key,
-    () => {
-      input[action] = false;
-    },
-    "keyup"
-  );
-}
-
 function init() {
   canvas = document.getElementById("canvas");
   canvas.width = SCREEN_WIDTH;
-  canvas.height = SCREEN_HEIGHT;
   ctx = canvas.getContext("2d");
+  canvas.height = SCREEN_HEIGHT;
 
-  initMousetrap("w", "up");
-  initMousetrap("s", "down");
-  initMousetrap("a", "left");
-  initMousetrap("d", "right");
+  function createKeyboardAction(key, direction): KeyboardAction {
+    return { type: Actions.KEYBOARD, key, direction };
+  }
+
+  ["w", "s", "a", "d"].forEach(key => {
+    Mousetrap.bind(key, () => dispatch(createKeyboardAction(key, "down")), "keydown");
+    Mousetrap.bind(key, () => dispatch(createKeyboardAction(key, "up")), "keyup");
+  });
 
   canvas.addEventListener("mousemove", e => {
-    input.mousePos = getMousePos(e);
+    dispatch({ type: Actions.MOUSE_MOVE, position: getMousePos(e) });
   });
   canvas.addEventListener("mousedown", () => {
-    input.mousepress = true;
+    dispatch({ type: Actions.MOUSE_CLICK, direction: "mousedown" });
   });
   canvas.addEventListener("mouseup", () => {
-    input.mousepress = false;
+    dispatch({ type: Actions.MOUSE_CLICK, direction: "mouseup" });
   });
 
   gameLoop(0);
 }
 
-function checkCollisions(state) {
-  var collisions = [];
-  for (var zombie of state.zombie.zombies) {
-    for (var bullet of state.bullets) {
-      if (
-        overlaps(
-          { x: bullet.x, y: bullet.y, width: WIDTH.bullet, height: HEIGHT.bullet },
-          { x: zombie.x, y: zombie.y, width: WIDTH.zombie, height: HEIGHT.zombie }
-        )
-      ) {
-        collisions.push({
-          collided: "ZOMBIE_BULLET",
-          zombie: state.zombie.zombies.indexOf(zombie),
-          bullet: state.bullets.indexOf(bullet)
-        });
-      }
-    }
-  }
-  return collisions;
-}
-
-function reducer(state, stateFragment) {
-  return { ...state, ...stateFragment };
-}
-
-function update(delta, input, collisions, state) {
-  let states = [player, zombies, bullet].map(actor => actor(delta, input, collisions, state));
-  return states.reduce(reducer, state);
-}
+// function checkCollisions(state: State) {
+//   var collisions = [];
+//   for (var zombie of state.zombies.zombies) {
+//     for (var bullet of state.bullets.bullets) {
+//       if (
+//         overlaps(
+//           {
+//             x: bullet.position.x,
+//             y: bullet.position.y,
+//             width: WIDTH.bullet,
+//             height: HEIGHT.bullet
+//           },
+//           { x: zombie.position.x, y: zombie.position.y, width: WIDTH.zombie, height: HEIGHT.zombie }
+//         )
+//       ) {
+//         collisions.push({
+//           collided: "ZOMBIE_BULLET",
+//           zombie: state.zombies.zombies.indexOf(zombie),
+//           bullet: state.bullets.bullets.indexOf(bullet)
+//         });
+//       }
+//     }
+//   }
+//   return collisions;
+// }
 
 let previousTimestamp;
 function gameLoop(timestamp) {
@@ -130,13 +169,19 @@ function gameLoop(timestamp) {
   }
   let delta = timestamp - previousTimestamp;
 
-  let collisions = checkCollisions(state);
-  let currentState = update(delta, input, collisions, state);
-  draw(ctx, currentState);
+  // check for collisions right here
+  dispatch({ type: Actions.TIMESTEP, delta });
+  draw(ctx, state);
 
   window.requestAnimationFrame(gameLoop);
   previousTimestamp = timestamp;
-  state = currentState;
 }
 
 window.onload = init;
+
+function checkCollisions(state: State) {
+  dispatch({ type: Actions.COLLISION, collided: "ZOMBIE_BULLET", data: { zombie: 1 } });
+}
+
+window._dispatch = dispatch;
+window.checkCollisions = checkCollisions;

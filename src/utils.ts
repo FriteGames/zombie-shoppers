@@ -1,18 +1,24 @@
-import { SCREEN_HEIGHT, SCREEN_WIDTH, WIDTH, HEIGHT } from "./config";
+import { SCREEN_HEIGHT, SCREEN_WIDTH, WIDTH, HEIGHT, WORLD_HEIGHT, WORLD_WIDTH } from "./config";
+import { Position, State } from "./types";
 
-export function distFromCenter(obj: any): number {
+export function distanceFromScreenCenter(obj: any): number {
   let dx = obj.x - SCREEN_WIDTH / 2;
   let dy = obj.y - SCREEN_HEIGHT / 2;
   return Math.sqrt(Math.pow(dx, 2) + Math.pow(dy, 2));
 }
 
-export function worldCoordinates(screenCoordinates, state) {
-  let shift_x = state.player.x - SCREEN_WIDTH / 2;
-  let shift_y = state.player.y - SCREEN_HEIGHT / 2;
+export function distanceFromWorldCenter(obj: any): number {
+  let dx = obj.x - WORLD_WIDTH / 2;
+  let dy = obj.y - WORLD_HEIGHT / 2;
+  return Math.sqrt(Math.pow(dx, 2) + Math.pow(dy, 2));
+}
 
+export function worldCoordinates(screenCoordinates: Position, reference: Position): Position {
+  let shift_x = reference.x - SCREEN_WIDTH / 2;
+  let shift_y = reference.y - SCREEN_HEIGHT / 2;
   return {
-    x: screenCoordinates.x - state.background.x + shift_x,
-    y: screenCoordinates.y - state.background.y + shift_y
+    x: screenCoordinates.x - shift_x,
+    y: screenCoordinates.y - shift_y
   };
 }
 

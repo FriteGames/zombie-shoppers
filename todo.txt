@@ -1,0 +1,6 @@
+refactor reducers
+load a level from a tilemap
+fix camera movement
+pick up item
+return to goal
+go to next level

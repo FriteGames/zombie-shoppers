@@ -1,44 +1,43 @@
-import SCREEN_WIDTH from "./config";
-import { distFromCenter } from "./utils";
-let BULLET_SPEED = 3;
+import { SCREEN_WIDTH, WORLD_WIDTH } from "./config";
+import { distanceFromWorldCenter } from "./utils";
+import { Bullets, Bullet, State, Position, Action, Actions } from "./types";
 
-function bulletPosition(bullet) {
+const BULLET_SPEED = 3;
+const BULLET_DAMAGE = 50;
+
+function bulletPosition(bullet: Bullet): Position {
   let rad = bullet.angle / 57.2958;
   let dy = -1 * BULLET_SPEED * Math.cos(rad);
   let dx = BULLET_SPEED * Math.sin(rad);
   return {
-    x: (bullet.x += dx),
-    y: (bullet.y += dy)
+    x: bullet.position.x + dx,
+    y: bullet.position.y + dy
   };
 }
 
-export const bullet = function(delta, input, collisions, state) {
-  let bState = state.bullets;
+function spawnBullet(playerPosition: Position, weaponAngle: number): Bullet {
+  return { position: playerPosition, damage: BULLET_DAMAGE, angle: weaponAngle };
+}
 
-  if (input.mousepress) {
-    bState.push({
-      x: state.player.x,
-      y: state.player.y,
-      angle: state.player.weapon.angle
+export function bulletReducer(bullets: Bullets, state: State, action: Action): Bullets {
+  if (action.type === Actions.TIMESTEP) {
+    const delta = action.delta;
+
+    let bulletsFired = [...bullets.bullets];
+    bulletsFired = bulletsFired.map(bullet => {
+      const position = bulletPosition(bullet);
+      return { ...bullet, position };
     });
-  }
 
-  for (var bullet of bState) {
-    let pos = bulletPosition(bullet);
-    bullet.x = pos.x;
-    bullet.y = pos.y;
-  }
-
-  let bulletHits = collisions.filter(c => c.collided == "ZOMBIE_BULLET");
-  for (var bhit of bulletHits) {
-    bState.splice(bhit.bullet, 1);
-  }
-
-  for (var bullet of bState) {
-    if (distFromCenter(bullet) > SCREEN_WIDTH) {
-      bState.splice(bState.indexOf(bullet), 1);
+    if (state.mousePressed) {
+      bulletsFired.push(spawnBullet(state.player.position, state.player.weapon.angle));
     }
+
+    return {
+      ...bullets,
+      bullets: bulletsFired
+    };
   }
 
-  return { bullets: bState };
-};
+  return bullets;
+}
