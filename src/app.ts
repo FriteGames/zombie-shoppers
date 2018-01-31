@@ -2,7 +2,7 @@ import * as Mousetrap from "mousetrap";
 import { WORLD_WIDTH, HEIGHT, WORLD_HEIGHT, SCREEN_WIDTH, SCREEN_HEIGHT, WIDTH } from "./config";
 import { draw } from "./draw";
 import { zombieReducer } from "./zombies";
-import { overlaps } from "./utils";
+import { overlaps, worldCoordinates } from "./utils";
 import { playerReducer } from "./player";
 import { bulletReducer } from "./bullets";
 import { State, Action, Actions, KeyboardAction, Position } from "./types";
@@ -17,9 +17,7 @@ const initialState: State = {
     carryingItem: false,
     weapon: {
       angle: 0
-    },
-    vx: 0,
-    vy: 0
+    }
   },
   bullets: {
     bullets: []

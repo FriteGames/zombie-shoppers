@@ -8,8 +8,6 @@ export type Player = {
   health: number;
   carryingItem: boolean;
   weapon: Weapon;
-  vx: number;
-  vy: number;
 };
 
 export type Item = {

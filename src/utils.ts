@@ -14,11 +14,13 @@ export function distanceFromWorldCenter(obj: any): number {
 }
 
 export function worldCoordinates(screenCoordinates: Position, reference: Position): Position {
-  let shift_x = reference.x - SCREEN_WIDTH / 2;
-  let shift_y = reference.y - SCREEN_HEIGHT / 2;
+  // calculate the world's shift
+  const worldshift_x = SCREEN_WIDTH / 2 - reference.x;
+  const worldshift_y = SCREEN_HEIGHT / 2 - reference.y;
+
   return {
-    x: screenCoordinates.x - shift_x,
-    y: screenCoordinates.y - shift_y
+    x: screenCoordinates.x - worldshift_x,
+    y: screenCoordinates.y - worldshift_y
   };
 }
 
