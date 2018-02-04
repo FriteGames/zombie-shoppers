@@ -29,7 +29,7 @@ export function bulletReducer(bullets: Bullets, state: State, action: Action): B
       return { ...bullet, position };
     });
 
-    if (state.mousePressed) {
+    if (state.mousePressed && !state.player.carryingItem) {
       bulletsFired.push(spawnBullet(state.player.position, state.player.weapon.angle));
     }
 

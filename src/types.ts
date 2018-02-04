@@ -76,7 +76,7 @@ export type TimestepAction = {
 
 export type KeyboardAction = {
   type: Actions.KEYBOARD;
-  key: "w" | "a" | "s" | "d";
+  key: "w" | "a" | "s" | "d" | "space";
   direction: "up" | "down";
 };
 

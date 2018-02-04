@@ -1,5 +1,6 @@
-import { worldCoordinates } from "./utils";
+import { worldCoordinates, overlaps, getRect } from "./utils";
 import { Player, Position, Action, Actions, State } from "./types";
+import { WIDTH, HEIGHT } from "./config";
 
 let PLAYER_SPEED = 10;
 
@@ -17,7 +18,26 @@ function weaponAngle(player: Player, mousePos: Position): number {
   return Math.atan2(dx, dy) * 180 / Math.PI;
 }
 
+function shouldCarryItem(player: Player, itemPos: Position) {
+  if (!player.carryingItem) {
+    if (overlaps(getRect(player.position, "player"), getRect(itemPos, "item"))) {
+      return true;
+    }
+  }
+  return false;
+}
+
 export function playerReducer(player: Player, state: State, action: Action): Player {
+  if (action.type === Actions.KEYBOARD) {
+    if (action.key === "space" && action.direction === "down") {
+      const carryingItem = shouldCarryItem(player, state.item.position);
+      return {
+        ...player,
+        carryingItem
+      };
+    }
+  }
+
   if (action.type === Actions.TIMESTEP) {
     const vx = state.keysPressed.d ? 1 : state.keysPressed.a ? -1 : 0;
     const vy = state.keysPressed.w ? -1 : state.keysPressed.s ? 1 : 0;
@@ -26,6 +46,7 @@ export function playerReducer(player: Player, state: State, action: Action): Pla
       player,
       worldCoordinates(state.mousePosition, player.position)
     );
+
     return {
       ...player,
       position: position,

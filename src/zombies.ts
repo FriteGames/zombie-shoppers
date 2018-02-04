@@ -13,12 +13,12 @@ function spawn(): Zombie {
   };
 }
 
-function zombiePosition(zPos: Position, pPos: Position): Position {
-  let dx = zPos.x - pPos.x;
-  let dy = pPos.y - zPos.y;
-  let angleToPlayer = Math.atan2(dy, dx);
-  let vx = -1 * ZOMBIE_SPEED * Math.cos(angleToPlayer);
-  let vy = ZOMBIE_SPEED * Math.sin(angleToPlayer);
+function zombiePosition(zPos: Position, dPos: Position): Position {
+  let dx = zPos.x - dPos.x;
+  let dy = dPos.y - zPos.y;
+  let angleToDest = Math.atan2(dy, dx);
+  let vx = -1 * ZOMBIE_SPEED * Math.cos(angleToDest);
+  let vy = ZOMBIE_SPEED * Math.sin(angleToDest);
   return {
     x: zPos.x + vx,
     y: zPos.y + vy
@@ -33,11 +33,11 @@ export const zombieReducer = function(zombies: Zombies, state: State, action: Ac
     let spawnedZombies: Array<Zombie> = [...zombies.zombies];
 
     if (shouldSpawn) {
-      spawnedZombies.push(spawn());
+      // spawnedZombies.push(spawn());
     }
 
     spawnedZombies = spawnedZombies.map(zombie => {
-      const position = zombiePosition(zombie.position, state.player.position);
+      const position = zombiePosition(zombie.position, state.item.position);
       return { ...zombie, position };
     });
 

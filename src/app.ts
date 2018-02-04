@@ -5,7 +5,7 @@ import { zombieReducer } from "./zombies";
 import { overlaps, worldCoordinates } from "./utils";
 import { playerReducer } from "./player";
 import { bulletReducer } from "./bullets";
-import { State, Action, Actions, KeyboardAction, Position } from "./types";
+import { State, Action, Actions, KeyboardAction, Position, Item } from "./types";
 
 let canvas;
 let ctx;
@@ -28,8 +28,10 @@ const initialState: State = {
   },
   item: {
     position: {
-      x: WORLD_WIDTH - HEIGHT.item * 2,
-      y: WORLD_HEIGHT / 2 - HEIGHT.item / 2
+      // x: WORLD_WIDTH - HEIGHT.item * 2,
+      // y: WORLD_HEIGHT / 2 - HEIGHT.item / 2
+      x: 200,
+      y: 200
     }
   },
   background: {
@@ -59,8 +61,20 @@ function reducer(state: State = initialState, action: Action): State {
     mousePressed: mousePressedReducer(state.mousePressed, state, action),
     keysPressed: keyPressedReducer(state.keysPressed, state, action),
     zombies: zombieReducer(state.zombies, state, action),
-    bullets: bulletReducer(state.bullets, state, action)
+    bullets: bulletReducer(state.bullets, state, action),
+    item: itemReducer(state.item, state, action)
   };
+}
+
+function itemReducer(item: Item, state: State, action: Action): Item {
+  if (action.type === Actions.TIMESTEP) {
+    const position = state.player.carryingItem ? state.player.position : item.position;
+    return {
+      position
+    };
+  }
+
+  return item;
 }
 
 function keyPressedReducer(
@@ -114,7 +128,7 @@ function init() {
     return { type: Actions.KEYBOARD, key, direction };
   }
 
-  ["w", "s", "a", "d"].forEach(key => {
+  ["w", "s", "a", "d", "space"].forEach(key => {
     Mousetrap.bind(key, () => dispatch(createKeyboardAction(key, "down")), "keydown");
     Mousetrap.bind(key, () => dispatch(createKeyboardAction(key, "up")), "keyup");
   });
@@ -172,6 +186,10 @@ function gameLoop(timestamp) {
   dispatch({ type: Actions.TIMESTEP, delta });
   draw(ctx, state);
 
+  if (state.player.carryingItem && state.player.position.x < 0) {
+    console.log("level complete");
+  }
+
   window.requestAnimationFrame(gameLoop);
   previousTimestamp = timestamp;
 }
@@ -200,5 +218,6 @@ function checkCollisions(state: State) {
   }
 }
 
+window.item = state.item;
 window._dispatch = dispatch;
 window.checkCollisions = checkCollisions;

@@ -1,5 +1,5 @@
 import { WIDTH, HEIGHT, COLORS, SCREEN_WIDTH, SCREEN_HEIGHT } from "./config";
-import { State, Player, Weapon, Bullets, Zombies, Position } from "./types";
+import { State, Player, Weapon, Bullets, Zombies, Position, Item } from "./types";
 
 function drawRect(ctx, x, y, width, height, color) {
   ctx.fillStyle = color;
@@ -23,15 +23,22 @@ function drawPlayer(ctx, player: Player) {
     HEIGHT["player"],
     COLORS["player"]
   );
-  drawAngledRect(
-    ctx,
-    player.position.x,
-    player.position.y,
-    WIDTH["weapon"],
-    HEIGHT["weapon"],
-    player.weapon.angle,
-    COLORS["weapon"]
-  );
+
+  if (!player.carryingItem) {
+    drawAngledRect(
+      ctx,
+      player.position.x,
+      player.position.y,
+      WIDTH["weapon"],
+      HEIGHT["weapon"],
+      player.weapon.angle,
+      COLORS["weapon"]
+    );
+  }
+}
+
+function drawItem(ctx, item: Item) {
+  drawRect(ctx, item.position.x, item.position.y, WIDTH["item"], HEIGHT["item"], COLORS["item"]);
 }
 
 function drawBullets(ctx, bullets: Bullets) {
@@ -62,7 +69,9 @@ function setCameraPosition(position: Position, state: State): State {
   let zombies = [...state.zombies.zombies];
   let background = { ...state.background };
   let player = { ...state.player };
+  let item = { ...state.item };
 
+  item = shiftPos(item, shift_x, shift_y);
   background = shiftPos(background, shift_x, shift_y);
   player = shiftPos(player, shift_x, shift_y);
   bullets = bullets.map(bullet => {
@@ -77,7 +86,8 @@ function setCameraPosition(position: Position, state: State): State {
     bullets: { bullets },
     zombies: { ...state.zombies, zombies },
     background,
-    player
+    player,
+    item
   };
 }
 
@@ -95,4 +105,5 @@ export function draw(ctx, state: State) {
   drawPlayer(ctx, drawState.player);
   drawZombies(ctx, drawState.zombies);
   drawBullets(ctx, drawState.bullets);
+  drawItem(ctx, drawState.item);
 }

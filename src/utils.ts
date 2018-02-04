@@ -13,6 +13,15 @@ export function distanceFromWorldCenter(obj: any): number {
   return Math.sqrt(Math.pow(dx, 2) + Math.pow(dy, 2));
 }
 
+export function getRect(position: Position, objname: string) {
+  return {
+    x: position.x,
+    y: position.y,
+    width: WIDTH[objname],
+    height: HEIGHT[objname]
+  };
+}
+
 export function worldCoordinates(screenCoordinates: Position, reference: Position): Position {
   // calculate the world's shift
   const worldshift_x = SCREEN_WIDTH / 2 - reference.x;
