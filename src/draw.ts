@@ -1,5 +1,5 @@
 import { WIDTH, HEIGHT, COLORS, SCREEN_WIDTH, SCREEN_HEIGHT } from "./config";
-import { State, Player, Weapon, Bullets, Zombies, Position, Item } from "./types";
+import { State, Player, Weapon, Bullets, Zombies, Position, Item, Tile, TileType } from "./types";
 
 function drawRect(ctx, x, y, width, height, color) {
   ctx.fillStyle = color;
@@ -62,22 +62,18 @@ function shiftPos(obj, shift_x, shift_y) {
 }
 
 function setCameraPosition(position: Position, state: State): State {
-  let shift_x = SCREEN_WIDTH / 2 - position.x;
-  let shift_y = SCREEN_HEIGHT / 2 - position.y;
+  const shift_x = SCREEN_WIDTH / 2 - position.x;
+  const shift_y = SCREEN_HEIGHT / 2 - position.y;
 
-  let bullets = [...state.bullets.bullets];
-  let zombies = [...state.zombies.zombies];
-  let background = { ...state.background };
-  let player = { ...state.player };
-  let item = { ...state.item };
-
-  item = shiftPos(item, shift_x, shift_y);
-  background = shiftPos(background, shift_x, shift_y);
-  player = shiftPos(player, shift_x, shift_y);
-  bullets = bullets.map(bullet => {
+  const player = shiftPos({ ...state.player }, shift_x, shift_y);
+  const item = shiftPos({ ...state.item }, shift_x, shift_y);
+  const tiles = [...state.level.tiles].map(tile => {
+    return shiftPos(tile, shift_x, shift_y);
+  });
+  const bullets = [...state.bullets.bullets].map(bullet => {
     return shiftPos(bullet, shift_x, shift_y);
   });
-  zombies = zombies.map(zombie => {
+  const zombies = [...state.zombies.zombies].map(zombie => {
     return shiftPos(zombie, shift_x, shift_y);
   });
 
@@ -85,23 +81,31 @@ function setCameraPosition(position: Position, state: State): State {
     ...state,
     bullets: { bullets },
     zombies: { ...state.zombies, zombies },
-    background,
     player,
-    item
+    item,
+    level: {
+      ...state.level,
+      tiles
+    }
   };
+}
+
+function drawTile(ctx, tile: Tile) {
+  drawRect(
+    ctx,
+    tile.position.x,
+    tile.position.y,
+    32,
+    32,
+    tile.type === TileType.BACKGROUND ? "#666" : "green"
+  );
 }
 
 export function draw(ctx, state: State) {
   let drawState = setCameraPosition(state.player.position, state);
   ctx.clearRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
-  drawRect(
-    ctx,
-    drawState.background.position.x,
-    drawState.background.position.y,
-    drawState.background.width,
-    drawState.background.height,
-    "#666"
-  );
+
+  drawState.level.tiles.forEach(tile => drawTile(ctx, tile));
   drawPlayer(ctx, drawState.player);
   drawZombies(ctx, drawState.zombies);
   drawBullets(ctx, drawState.bullets);

@@ -28,6 +28,13 @@ function shouldCarryItem(player: Player, itemPos: Position) {
 }
 
 export function playerReducer(player: Player, state: State, action: Action): Player {
+  if (action.type === Actions.LOAD_LEVEL) {
+    return {
+      ...player,
+      position: action.level.playerPosition
+    };
+  }
+
   if (action.type === Actions.KEYBOARD) {
     if (action.key === "space" && action.direction === "down") {
       const carryingItem = shouldCarryItem(player, state.item.position);

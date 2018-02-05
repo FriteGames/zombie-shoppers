@@ -44,15 +44,44 @@ export type Background = {
   height: number;
 };
 
+export type Rect = {
+  position: Position;
+  width: number;
+  height: number;
+};
+
 export type State = {
   player: Player;
   bullets: Bullets;
   zombies: Zombies;
   item: Item;
-  background: Background;
   mousePosition: Position;
   mousePressed: boolean;
   keysPressed: { [key: string]: boolean };
+  level: Level;
+};
+
+export enum TileType {
+  BACKGROUND,
+  GOAL
+}
+
+export type Tile = {
+  position: Position;
+  type: TileType;
+  boundary: boolean;
+};
+
+export type Level = {
+  levelNum: number;
+  width: number;
+  height: number;
+  tiles: Array<Tile>;
+  zombieSpawnDelay: number;
+  zombieSpeed: number;
+  itemPosition: Position;
+  goal: Rect;
+  playerPosition: Position;
 };
 
 export enum Actions {
@@ -66,7 +95,7 @@ export enum Actions {
 
 export type LoadLevelAction = {
   type: Actions.LOAD_LEVEL;
-  level: number;
+  level: Level;
 };
 
 export type TimestepAction = {

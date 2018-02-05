@@ -2,10 +2,21 @@ import * as Mousetrap from "mousetrap";
 import { WORLD_WIDTH, HEIGHT, WORLD_HEIGHT, SCREEN_WIDTH, SCREEN_HEIGHT, WIDTH } from "./config";
 import { draw } from "./draw";
 import { zombieReducer } from "./zombies";
-import { overlaps, worldCoordinates } from "./utils";
+import { overlaps, worldCoordinates, getRect } from "./utils";
 import { playerReducer } from "./player";
 import { bulletReducer } from "./bullets";
-import { State, Action, Actions, KeyboardAction, Position, Item } from "./types";
+import {
+  State,
+  Action,
+  Actions,
+  KeyboardAction,
+  Position,
+  Item,
+  Level,
+  Tile,
+  TileType,
+  Rect
+} from "./types";
 
 let canvas;
 let ctx;
@@ -34,17 +45,10 @@ const initialState: State = {
       y: 200
     }
   },
-  background: {
-    position: {
-      x: 0,
-      y: 0
-    },
-    width: WORLD_WIDTH,
-    height: WORLD_HEIGHT
-  },
   mousePosition: { x: 0, y: 0 },
   mousePressed: false,
-  keysPressed: { w: false, a: false, s: false, d: false }
+  keysPressed: { w: false, a: false, s: false, d: false },
+  level: null
 };
 
 let state: State = initialState;
@@ -62,11 +66,23 @@ function reducer(state: State = initialState, action: Action): State {
     keysPressed: keyPressedReducer(state.keysPressed, state, action),
     zombies: zombieReducer(state.zombies, state, action),
     bullets: bulletReducer(state.bullets, state, action),
-    item: itemReducer(state.item, state, action)
+    item: itemReducer(state.item, state, action),
+    level: levelReducer(state.level, state, action)
   };
 }
 
+function levelReducer(level: Level, state: State, action: Action): Level {
+  if (action.type === Actions.LOAD_LEVEL) {
+    return action.level;
+  }
+  return level;
+}
+
 function itemReducer(item: Item, state: State, action: Action): Item {
+  if (action.type === Actions.LOAD_LEVEL) {
+    return { position: action.level.itemPosition };
+  }
+
   if (action.type === Actions.TIMESTEP) {
     const position = state.player.carryingItem ? state.player.position : item.position;
     return {
@@ -143,34 +159,61 @@ function init() {
     dispatch({ type: Actions.MOUSE_CLICK, direction: "mouseup" });
   });
 
+  dispatch({ type: Actions.LOAD_LEVEL, level: loadLevel(1) });
+  console.log(state.level);
   gameLoop(0);
 }
 
-// function checkCollisions(state: State) {
-//   var collisions = [];
-//   for (var zombie of state.zombies.zombies) {
-//     for (var bullet of state.bullets.bullets) {
-//       if (
-//         overlaps(
-//           {
-//             x: bullet.position.x,
-//             y: bullet.position.y,
-//             width: WIDTH.bullet,
-//             height: HEIGHT.bullet
-//           },
-//           { x: zombie.position.x, y: zombie.position.y, width: WIDTH.zombie, height: HEIGHT.zombie }
-//         )
-//       ) {
-//         collisions.push({
-//           collided: "ZOMBIE_BULLET",
-//           zombie: state.zombies.zombies.indexOf(zombie),
-//           bullet: state.bullets.bullets.indexOf(bullet)
-//         });
-//       }
-//     }
-//   }
-//   return collisions;
-// }
+function loadLevel(levelNum: number): Level {
+  const levelJson = require("../levels/level1.json");
+  const width = levelJson.width;
+  const height = levelJson.height;
+
+  const tiles = levelJson.layers[0].data.map((tileId, index): Tile => {
+    const position = {
+      x: (index % width) * 32,
+      y: Math.floor(index / width) * 32
+    };
+    const boundary = false;
+    const type = tileId === 1 ? TileType.BACKGROUND : TileType.GOAL;
+    return { position, boundary, type };
+  });
+
+  function position(obj): Position {
+    return { x: obj.x, y: obj.y };
+  }
+
+  function rect(obj): Rect {
+    return {
+      position: position(obj),
+      width: obj.width,
+      height: obj.height
+    };
+  }
+
+  const playerPosition = position(levelJson.layers[1].objects[0]);
+  const itemPosition = position(levelJson.layers[1].objects[1]);
+  const goal = rect(levelJson.layers[1].objects[2]);
+
+  const zombieConfig = {
+    1: {
+      zombieSpawnDelay: 1000,
+      zombieSpeed: 100
+    }
+  };
+
+  return {
+    levelNum,
+    width,
+    height,
+    tiles,
+    goal,
+    playerPosition,
+    itemPosition,
+    zombieSpawnDelay: zombieConfig[levelNum].zombieSpawnDelay,
+    zombieSpeed: zombieConfig[levelNum].zombieSpeed
+  };
+}
 
 let previousTimestamp;
 function gameLoop(timestamp) {
@@ -186,7 +229,14 @@ function gameLoop(timestamp) {
   dispatch({ type: Actions.TIMESTEP, delta });
   draw(ctx, state);
 
-  if (state.player.carryingItem && state.player.position.x < 0) {
+  if (
+    overlaps(getRect(state.item.position, "item"), {
+      x: state.level.goal.position.x,
+      y: state.level.goal.position.y,
+      width: state.level.goal.width,
+      height: state.level.goal.height
+    })
+  ) {
     console.log("level complete");
   }
 
@@ -217,7 +267,3 @@ function checkCollisions(state: State) {
     }
   }
 }
-
-window.item = state.item;
-window._dispatch = dispatch;
-window.checkCollisions = checkCollisions;

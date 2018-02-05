@@ -1,6 +1,26 @@
-refactor reducers
-load a level from a tilemap
-fix camera movement
-pick up item
-return to goal
+CORE GAMEPLAY:
 go to next level
+
+
+zombies spawn from random locations
+tile boundaries / non-permeable tiles
+weapon upgrades? fire rates?
+bullets destroyed off screen
+bullet fire delay
+level design -> path from start to finish
+shooting bullets does damage to zombies instead of killing them
+zombie damages human instead of killing them outright.
+zombie health bars
+player health bars
+navigation for player to item
+score
+
+Components of a level:
+  width
+  height
+  tiles
+  zombie spawn rate
+  zombie speed
+  itemPosition
+  goalPosition
+  playerPosition

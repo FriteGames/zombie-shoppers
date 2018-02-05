@@ -1,8 +1,5 @@
 import { Zombies, Zombie, Position, Actions, Action, State, Player } from "./types";
 
-let ZOMBIE_SPEED = 1;
-let ZOMBIE_SPAWN_DELAY = 1000;
-
 function spawn(): Zombie {
   return {
     position: {
@@ -13,12 +10,17 @@ function spawn(): Zombie {
   };
 }
 
-function zombiePosition(zPos: Position, dPos: Position): Position {
+function zombiePosition(
+  zPos: Position,
+  dPos: Position,
+  zombieSpeed: number,
+  delta: number
+): Position {
   let dx = zPos.x - dPos.x;
   let dy = dPos.y - zPos.y;
   let angleToDest = Math.atan2(dy, dx);
-  let vx = -1 * ZOMBIE_SPEED * Math.cos(angleToDest);
-  let vy = ZOMBIE_SPEED * Math.sin(angleToDest);
+  let vx = -1 * zombieSpeed * Math.cos(angleToDest) * delta / 1000;
+  let vy = zombieSpeed * Math.sin(angleToDest) * delta / 1000;
   return {
     x: zPos.x + vx,
     y: zPos.y + vy
@@ -28,16 +30,21 @@ function zombiePosition(zPos: Position, dPos: Position): Position {
 export const zombieReducer = function(zombies: Zombies, state: State, action: Action): Zombies {
   if (action.type === Actions.TIMESTEP) {
     const delta = action.delta;
-    const shouldSpawn = zombies.lastSpawn > ZOMBIE_SPAWN_DELAY;
+    const shouldSpawn = zombies.lastSpawn > state.level.zombieSpawnDelay;
     const lastSpawn = shouldSpawn ? 0 : zombies.lastSpawn + delta;
     let spawnedZombies: Array<Zombie> = [...zombies.zombies];
 
     if (shouldSpawn) {
-      // spawnedZombies.push(spawn());
+      spawnedZombies.push(spawn());
     }
 
     spawnedZombies = spawnedZombies.map(zombie => {
-      const position = zombiePosition(zombie.position, state.item.position);
+      const position = zombiePosition(
+        zombie.position,
+        state.item.position,
+        state.level.zombieSpeed,
+        delta
+      );
       return { ...zombie, position };
     });
 
