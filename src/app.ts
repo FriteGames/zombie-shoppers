@@ -197,8 +197,8 @@ function loadLevel(levelNum: number): Level {
 
   const zombieConfig = {
     1: {
-      zombieSpawnDelay: 1000,
-      zombieSpeed: 100
+      zombieSpawnDelay: 1, // units: seconds
+      zombieSpeed: 100 // units: pixels per second
     }
   };
 
@@ -222,7 +222,7 @@ function gameLoop(timestamp) {
     previousTimestamp = timestamp;
     return;
   }
-  let delta = timestamp - previousTimestamp;
+  let delta = (timestamp - previousTimestamp) / 1000; // units: seconds
 
   // check for collisions right here
   checkCollisions(state);

@@ -2,6 +2,8 @@ CORE GAMEPLAY:
 go to next level
 
 
+hide cursor
+show crosshair
 zombies spawn from random locations
 tile boundaries / non-permeable tiles
 weapon upgrades? fire rates?

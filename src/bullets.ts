@@ -2,13 +2,13 @@ import { SCREEN_WIDTH, WORLD_WIDTH } from "./config";
 import { distanceFromWorldCenter } from "./utils";
 import { Bullets, Bullet, State, Position, Action, Actions } from "./types";
 
-const BULLET_SPEED = 3;
+const BULLET_SPEED = 1000;
 const BULLET_DAMAGE = 50;
 
-function bulletPosition(bullet: Bullet): Position {
+function bulletPosition(bullet: Bullet, delta: number): Position {
   let rad = bullet.angle / 57.2958;
-  let dy = -1 * BULLET_SPEED * Math.cos(rad);
-  let dx = BULLET_SPEED * Math.sin(rad);
+  let dy = -1 * BULLET_SPEED * Math.cos(rad) * delta;
+  let dx = BULLET_SPEED * Math.sin(rad) * delta;
   return {
     x: bullet.position.x + dx,
     y: bullet.position.y + dy
@@ -21,11 +21,10 @@ function spawnBullet(playerPosition: Position, weaponAngle: number): Bullet {
 
 export function bulletReducer(bullets: Bullets, state: State, action: Action): Bullets {
   if (action.type === Actions.TIMESTEP) {
-    const delta = action.delta;
-
     let bulletsFired = [...bullets.bullets];
+
     bulletsFired = bulletsFired.map(bullet => {
-      const position = bulletPosition(bullet);
+      const position = bulletPosition(bullet, action.delta);
       return { ...bullet, position };
     });
 

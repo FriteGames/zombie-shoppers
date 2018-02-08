@@ -19,8 +19,8 @@ function zombiePosition(
   let dx = zPos.x - dPos.x;
   let dy = dPos.y - zPos.y;
   let angleToDest = Math.atan2(dy, dx);
-  let vx = -1 * zombieSpeed * Math.cos(angleToDest) * delta / 1000;
-  let vy = zombieSpeed * Math.sin(angleToDest) * delta / 1000;
+  let vx = -1 * zombieSpeed * Math.cos(angleToDest) * delta;
+  let vy = zombieSpeed * Math.sin(angleToDest) * delta;
   return {
     x: zPos.x + vx,
     y: zPos.y + vy
@@ -29,9 +29,8 @@ function zombiePosition(
 
 export const zombieReducer = function(zombies: Zombies, state: State, action: Action): Zombies {
   if (action.type === Actions.TIMESTEP) {
-    const delta = action.delta;
     const shouldSpawn = zombies.lastSpawn > state.level.zombieSpawnDelay;
-    const lastSpawn = shouldSpawn ? 0 : zombies.lastSpawn + delta;
+    const lastSpawn = shouldSpawn ? 0 : zombies.lastSpawn + action.delta;
     let spawnedZombies: Array<Zombie> = [...zombies.zombies];
 
     if (shouldSpawn) {
@@ -43,7 +42,7 @@ export const zombieReducer = function(zombies: Zombies, state: State, action: Ac
         zombie.position,
         state.item.position,
         state.level.zombieSpeed,
-        delta
+        action.delta
       );
       return { ...zombie, position };
     });

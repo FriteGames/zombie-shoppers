@@ -101,11 +101,17 @@ function drawTile(ctx, tile: Tile) {
   );
 }
 
+function drawCrosshair(ctx, mousePosition: Position) {
+  drawRect(ctx, mousePosition.x, mousePosition.y, 8, 8, "orange");
+}
+
 export function draw(ctx, state: State) {
   let drawState = setCameraPosition(state.player.position, state);
   ctx.clearRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 
   drawState.level.tiles.forEach(tile => drawTile(ctx, tile));
+
+  drawCrosshair(ctx, drawState.mousePosition);
   drawPlayer(ctx, drawState.player);
   drawZombies(ctx, drawState.zombies);
   drawBullets(ctx, drawState.bullets);
