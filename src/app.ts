@@ -18,9 +18,12 @@ import {
   Rect
 } from "./types";
 
+import loadLevel from "./level";
+
 let canvas;
 let ctx;
 
+// do i even need this?
 const initialState: State = {
   player: {
     position: { x: 0, y: 0 },
@@ -37,14 +40,7 @@ const initialState: State = {
     lastSpawn: 0,
     zombies: []
   },
-  item: {
-    position: {
-      // x: WORLD_WIDTH - HEIGHT.item * 2,
-      // y: WORLD_HEIGHT / 2 - HEIGHT.item / 2
-      x: 200,
-      y: 200
-    }
-  },
+  item: null,
   mousePosition: { x: 0, y: 0 },
   mousePressed: false,
   keysPressed: { w: false, a: false, s: false, d: false },
@@ -80,7 +76,7 @@ function levelReducer(level: Level, state: State, action: Action): Level {
 
 function itemReducer(item: Item, state: State, action: Action): Item {
   if (action.type === Actions.LOAD_LEVEL) {
-    return { position: action.level.itemPosition };
+    return { position: action.level.itemStartPosition };
   }
 
   if (action.type === Actions.TIMESTEP) {
@@ -160,59 +156,7 @@ function init() {
   });
 
   dispatch({ type: Actions.LOAD_LEVEL, level: loadLevel(1) });
-  console.log(state.level);
   gameLoop(0);
-}
-
-function loadLevel(levelNum: number): Level {
-  const levelJson = require("../levels/level1.json");
-  const width = levelJson.width;
-  const height = levelJson.height;
-
-  const tiles = levelJson.layers[0].data.map((tileId, index): Tile => {
-    const position = {
-      x: (index % width) * 32,
-      y: Math.floor(index / width) * 32
-    };
-    const boundary = false;
-    const type = tileId === 1 ? TileType.BACKGROUND : TileType.GOAL;
-    return { position, boundary, type };
-  });
-
-  function position(obj): Position {
-    return { x: obj.x, y: obj.y };
-  }
-
-  function rect(obj): Rect {
-    return {
-      position: position(obj),
-      width: obj.width,
-      height: obj.height
-    };
-  }
-
-  const playerPosition = position(levelJson.layers[1].objects[0]);
-  const itemPosition = position(levelJson.layers[1].objects[1]);
-  const goal = rect(levelJson.layers[1].objects[2]);
-
-  const zombieConfig = {
-    1: {
-      zombieSpawnDelay: 1, // units: seconds
-      zombieSpeed: 100 // units: pixels per second
-    }
-  };
-
-  return {
-    levelNum,
-    width,
-    height,
-    tiles,
-    goal,
-    playerPosition,
-    itemPosition,
-    zombieSpawnDelay: zombieConfig[levelNum].zombieSpawnDelay,
-    zombieSpeed: zombieConfig[levelNum].zombieSpeed
-  };
 }
 
 let previousTimestamp;
@@ -238,6 +182,7 @@ function gameLoop(timestamp) {
     })
   ) {
     console.log("level complete");
+    dispatch({ type: Actions.LOAD_LEVEL, level: loadLevel(state.level.number + 1) });
   }
 
   window.requestAnimationFrame(gameLoop);

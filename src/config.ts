@@ -7,13 +7,11 @@ export const COLORS = {
   player: "magenta",
   weapon: "yellow",
   bullet: "blue",
-  background: "#f5f5f5",
   zombie: "black",
   item: "gold"
 };
 
 export const WIDTH = {
-  background: WORLD_WIDTH,
   player: 32,
   weapon: 8,
   bullet: 8,
@@ -22,7 +20,6 @@ export const WIDTH = {
 };
 
 export const HEIGHT = {
-  background: WORLD_HEIGHT,
   player: 64,
   weapon: 32,
   bullet: 8,

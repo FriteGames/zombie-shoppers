@@ -73,15 +73,15 @@ export type Tile = {
 };
 
 export type Level = {
-  levelNum: number;
+  number: number;
+  zombieSpawnDelay: number;
+  zombieSpeed: number;
   width: number;
   height: number;
   tiles: Array<Tile>;
-  zombieSpawnDelay: number;
-  zombieSpeed: number;
-  itemPosition: Position;
+  itemStartPosition: Position;
+  playerStartPosition: Position;
   goal: Rect;
-  playerPosition: Position;
 };
 
 export enum Actions {

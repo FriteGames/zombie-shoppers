@@ -8,6 +8,7 @@ export function distanceFromScreenCenter(obj: any): number {
 }
 
 export function distanceFromWorldCenter(obj: any): number {
+  throw "WORLD_WIDTH is no longer a constant, but instead configured for each level.";
   let dx = obj.x - WORLD_WIDTH / 2;
   let dy = obj.y - WORLD_HEIGHT / 2;
   return Math.sqrt(Math.pow(dx, 2) + Math.pow(dy, 2));

@@ -34,7 +34,7 @@ export const zombieReducer = function(zombies: Zombies, state: State, action: Ac
     let spawnedZombies: Array<Zombie> = [...zombies.zombies];
 
     if (shouldSpawn) {
-      spawnedZombies.push(spawn());
+      // spawnedZombies.push(spawn());
     }
 
     spawnedZombies = spawnedZombies.map(zombie => {

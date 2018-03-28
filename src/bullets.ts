@@ -2,7 +2,7 @@ import { SCREEN_WIDTH, WORLD_WIDTH } from "./config";
 import { distanceFromWorldCenter } from "./utils";
 import { Bullets, Bullet, State, Position, Action, Actions } from "./types";
 
-const BULLET_SPEED = 1000;
+const BULLET_SPEED = 500;
 const BULLET_DAMAGE = 50;
 
 function bulletPosition(bullet: Bullet, delta: number): Position {

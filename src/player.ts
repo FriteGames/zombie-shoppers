@@ -31,7 +31,7 @@ export function playerReducer(player: Player, state: State, action: Action): Pla
   if (action.type === Actions.LOAD_LEVEL) {
     return {
       ...player,
-      position: action.level.playerPosition
+      position: action.level.playerStartPosition
     };
   }
 

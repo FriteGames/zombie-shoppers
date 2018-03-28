@@ -40,7 +40,7 @@
 </data>
  </layer>
  <objectgroup name="object positions" offsetx="2.27374e-13" offsety="0">
-  <object id="7" name="playerPosition" x="182.112" y="142.217">
+  <object id="7" name="playerPosition" x="170.112" y="210.217">
    <point/>
   </object>
   <object id="10" name="itemPosition" x="361.036" y="200.959">
