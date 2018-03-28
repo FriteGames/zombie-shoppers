@@ -50,6 +50,11 @@ export type Rect = {
   height: number;
 };
 
+export enum GameState {
+  LEVELINTRO,
+  GAME
+}
+
 export type State = {
   player: Player;
   bullets: Bullets;
@@ -59,6 +64,7 @@ export type State = {
   mousePressed: boolean;
   keysPressed: { [key: string]: boolean };
   level: Level;
+  gameState: GameState;
 };
 
 export enum TileType {
@@ -90,7 +96,8 @@ export enum Actions {
   KEYBOARD,
   MOUSE_MOVE,
   MOUSE_CLICK,
-  COLLISION
+  COLLISION,
+  TRANSITION_GAME_STATE
 }
 
 export type LoadLevelAction = {
@@ -125,10 +132,16 @@ export type CollisionAction = {
   data: any;
 };
 
+export type TransitionGameStateAction = {
+  type: Actions.TRANSITION_GAME_STATE;
+  gameState: GameState;
+};
+
 export type Action =
   | LoadLevelAction
   | TimestepAction
   | KeyboardAction
   | MouseMoveAction
   | MouseClickAction
-  | CollisionAction;
+  | CollisionAction
+  | TransitionGameStateAction;

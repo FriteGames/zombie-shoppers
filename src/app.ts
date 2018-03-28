@@ -15,7 +15,9 @@ import {
   Level,
   Tile,
   TileType,
-  Rect
+  Rect,
+  GameState,
+  TransitionGameStateAction
 } from "./types";
 
 import loadLevel from "./level";
@@ -44,7 +46,8 @@ const initialState: State = {
   mousePosition: { x: 0, y: 0 },
   mousePressed: false,
   keysPressed: { w: false, a: false, s: false, d: false },
-  level: null
+  level: null,
+  gameState: GameState.LEVELINTRO
 };
 
 let state: State = initialState;
@@ -63,8 +66,16 @@ function reducer(state: State = initialState, action: Action): State {
     zombies: zombieReducer(state.zombies, state, action),
     bullets: bulletReducer(state.bullets, state, action),
     item: itemReducer(state.item, state, action),
-    level: levelReducer(state.level, state, action)
+    level: levelReducer(state.level, state, action),
+    gameState: gameStateReducer(state.gameState, state, action)
   };
+}
+
+function gameStateReducer(gameState: GameState, state: State, action: Action): GameState {
+  if (action.type === Actions.TRANSITION_GAME_STATE) {
+    return action.gameState;
+  }
+  return gameState;
 }
 
 function levelReducer(level: Level, state: State, action: Action): Level {
@@ -155,8 +166,16 @@ function init() {
     dispatch({ type: Actions.MOUSE_CLICK, direction: "mouseup" });
   });
 
-  dispatch({ type: Actions.LOAD_LEVEL, level: loadLevel(1) });
+  presentLevel(1);
   gameLoop(0);
+}
+
+function presentLevel(levelNum: number) {
+  dispatch({ type: Actions.LOAD_LEVEL, level: loadLevel(levelNum) });
+  dispatch({ type: Actions.TRANSITION_GAME_STATE, gameState: GameState.LEVELINTRO });
+  setTimeout(() => {
+    dispatch({ type: Actions.TRANSITION_GAME_STATE, gameState: GameState.GAME });
+  }, 2000);
 }
 
 let previousTimestamp;
@@ -170,7 +189,10 @@ function gameLoop(timestamp) {
 
   // check for collisions right here
   checkCollisions(state);
-  dispatch({ type: Actions.TIMESTEP, delta });
+  if (state.gameState === GameState.GAME) {
+    dispatch({ type: Actions.TIMESTEP, delta });
+  }
+
   draw(ctx, state);
 
   if (
@@ -181,8 +203,7 @@ function gameLoop(timestamp) {
       height: state.level.goal.height
     })
   ) {
-    console.log("level complete");
-    dispatch({ type: Actions.LOAD_LEVEL, level: loadLevel(state.level.number + 1) });
+    presentLevel(state.level.number + 1);
   }
 
   window.requestAnimationFrame(gameLoop);

@@ -1,5 +1,16 @@
 import { WIDTH, HEIGHT, COLORS, SCREEN_WIDTH, SCREEN_HEIGHT } from "./config";
-import { State, Player, Weapon, Bullets, Zombies, Position, Item, Tile, TileType } from "./types";
+import {
+  State,
+  Player,
+  Weapon,
+  Bullets,
+  Zombies,
+  Position,
+  Item,
+  Tile,
+  TileType,
+  GameState
+} from "./types";
 
 function drawRect(ctx, x, y, width, height, color) {
   ctx.fillStyle = color;
@@ -116,4 +127,11 @@ export function draw(ctx, state: State) {
   drawZombies(ctx, drawState.zombies);
   drawBullets(ctx, drawState.bullets);
   drawItem(ctx, drawState.item);
+
+  if (state.gameState === GameState.LEVELINTRO) {
+    drawRect(ctx, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, "#fff");
+    ctx.font = "48px serif";
+    ctx.fillStyle = "#000";
+    ctx.fillText(`Level ${state.level.number}`, 10, 50);
+  }
 }
