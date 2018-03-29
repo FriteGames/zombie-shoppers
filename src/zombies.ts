@@ -12,15 +12,27 @@ function spawn(): Zombie {
 
 function zombiePosition(
   zPos: Position,
-  dPos: Position,
+  itemPos: Position,
+  playerPos: Position,
   zombieSpeed: number,
   delta: number
 ): Position {
-  let dx = zPos.x - dPos.x;
-  let dy = dPos.y - zPos.y;
-  let angleToDest = Math.atan2(dy, dx);
-  let vx = -1 * zombieSpeed * Math.cos(angleToDest) * delta;
-  let vy = zombieSpeed * Math.sin(angleToDest) * delta;
+  // if the zombie is closer to the item, move towards the item.
+  // if the zombie is closer to the player, move towards the player.
+
+  function d(p1: Position, p2: Position): number {
+    return Math.pow(p1.x - p2.x, 2) + Math.pow(p1.y - p2.y, 2);
+  }
+
+  const distToPlayer = d(zPos, playerPos);
+  const distToItem = d(zPos, itemPos);
+  const destPos = distToPlayer <= distToItem ? playerPos : itemPos;
+
+  const dx = zPos.x - destPos.x;
+  const dy = destPos.y - zPos.y;
+  const angleToDest = Math.atan2(dy, dx);
+  const vx = -1 * zombieSpeed * Math.cos(angleToDest) * delta;
+  const vy = zombieSpeed * Math.sin(angleToDest) * delta;
   return {
     x: zPos.x + vx,
     y: zPos.y + vy
@@ -34,13 +46,14 @@ export const zombieReducer = function(zombies: Zombies, state: State, action: Ac
     let spawnedZombies: Array<Zombie> = [...zombies.zombies];
 
     if (shouldSpawn) {
-      // spawnedZombies.push(spawn());
+      spawnedZombies.push(spawn());
     }
 
     spawnedZombies = spawnedZombies.map(zombie => {
       const position = zombiePosition(
         zombie.position,
         state.item.position,
+        state.player.position,
         state.level.zombieSpeed,
         action.delta
       );

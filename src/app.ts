@@ -47,7 +47,7 @@ const initialState: State = {
   mousePressed: false,
   keysPressed: { w: false, a: false, s: false, d: false },
   level: null,
-  gameState: GameState.LEVELINTRO
+  gameState: GameState.GAME
 };
 
 let state: State = initialState;
@@ -172,10 +172,10 @@ function init() {
 
 function presentLevel(levelNum: number) {
   dispatch({ type: Actions.LOAD_LEVEL, level: loadLevel(levelNum) });
-  dispatch({ type: Actions.TRANSITION_GAME_STATE, gameState: GameState.LEVELINTRO });
-  setTimeout(() => {
-    dispatch({ type: Actions.TRANSITION_GAME_STATE, gameState: GameState.GAME });
-  }, 2000);
+  // dispatch({ type: Actions.TRANSITION_GAME_STATE, gameState: GameState.LEVELINTRO });
+  // setTimeout(() => {
+  //   dispatch({ type: Actions.TRANSITION_GAME_STATE, gameState: GameState.GAME });
+  // }, 2000);
 }
 
 let previousTimestamp;
