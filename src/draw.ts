@@ -25,6 +25,12 @@ function drawAngledRect(ctx, pivotX, pivotY, width, height, angle, color) {
   ctx.restore();
 }
 
+function drawHealth(ctx, x, y, w, h, health) {
+  const healthWidth = health / 100 * w;
+  drawRect(ctx, x, y - 20, w, 10, "red");
+  drawRect(ctx, x, y - 20, healthWidth, 10, "green");
+}
+
 function drawPlayer(ctx, player: Player) {
   drawRect(
     ctx,
@@ -34,6 +40,8 @@ function drawPlayer(ctx, player: Player) {
     HEIGHT["player"],
     COLORS["player"]
   );
+
+  drawHealth(ctx, player.position.x, player.position.y - 20, WIDTH["player"], 10, player.health);
 
   if (!player.carryingItem) {
     drawAngledRect(
@@ -61,6 +69,7 @@ function drawBullets(ctx, bullets: Bullets) {
 function drawZombies(ctx, zombies: Zombies) {
   for (var z of zombies.zombies) {
     drawRect(ctx, z.position.x, z.position.y, WIDTH["zombie"], HEIGHT["zombie"], COLORS["zombie"]);
+    drawHealth(ctx, z.position.x, z.position.y - 20, WIDTH["zombie"], 10, z.health);
   }
 }
 

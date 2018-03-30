@@ -45,7 +45,7 @@ export const zombieReducer = function(zombies: Zombies, state: State, action: Ac
     const lastSpawn = shouldSpawn ? 0 : zombies.lastSpawn + action.delta;
     let spawnedZombies: Array<Zombie> = [...zombies.zombies];
 
-    if (shouldSpawn) {
+    if (shouldSpawn && spawnedZombies.length === 0) {
       spawnedZombies.push(spawn());
     }
 
@@ -66,11 +66,17 @@ export const zombieReducer = function(zombies: Zombies, state: State, action: Ac
     };
   } else if (action.type === Actions.COLLISION) {
     if (action.collided === "ZOMBIE_BULLET") {
-      let spawnedZombies: Array<Zombie> = [...zombies.zombies];
-      spawnedZombies.splice(action.data.zombie, 1);
+      const aliveZombies = zombies.zombies
+        .map((zombie, i) => {
+          return i === action.data.zombie ? { ...zombie, health: zombie.health - 10 } : zombie;
+        })
+        .filter(zombie => {
+          return zombie.health > 0;
+        });
+
       return {
         ...zombies,
-        zombies: spawnedZombies
+        zombies: aliveZombies
       };
     }
   }

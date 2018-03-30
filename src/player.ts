@@ -45,6 +45,16 @@ export function playerReducer(player: Player, state: State, action: Action): Pla
     }
   }
 
+  if (action.type === Actions.COLLISION) {
+    if (action.collided === "ZOMBIE_PLAYER") {
+      const health = player.health - 0.1;
+      return {
+        ...player,
+        health
+      };
+    }
+  }
+
   if (action.type === Actions.TIMESTEP) {
     const vx = state.keysPressed.d ? 1 : state.keysPressed.a ? -1 : 0;
     const vy = state.keysPressed.w ? -1 : state.keysPressed.s ? 1 : 0;

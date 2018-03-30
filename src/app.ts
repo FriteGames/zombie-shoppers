@@ -206,6 +206,11 @@ function gameLoop(timestamp) {
     presentLevel(state.level.number + 1);
   }
 
+  if (state.player.health <= 0) {
+    console.log("dead");
+    return;
+  }
+
   window.requestAnimationFrame(gameLoop);
   previousTimestamp = timestamp;
 }
@@ -230,6 +235,22 @@ function checkCollisions(state: State) {
           }
         });
       }
+    }
+  }
+
+  for (var z of state.zombies.zombies) {
+    const r1 = { x: z.position.x, y: z.position.y, width: WIDTH.zombie, height: HEIGHT.zombie };
+    const r2 = {
+      x: state.player.position.x,
+      y: state.player.position.y,
+      width: WIDTH.player,
+      height: HEIGHT.player
+    };
+    if (overlaps(r1, r2)) {
+      dispatch({
+        type: Actions.COLLISION,
+        collided: "ZOMBIE_PLAYER"
+      });
     }
   }
 }

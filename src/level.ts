@@ -3,7 +3,7 @@ import { Level, TileType, Tile, Position, Rect } from "./types";
 const levelConfig = {
   1: {
     zombieSpawnDelay: 1, // units: seconds
-    zombieSpeed: 250 // units: pixels per second
+    zombieSpeed: 50 // units: pixels per second
   },
   2: {
     zombieSpawnDelay: 1,
