@@ -3,7 +3,7 @@ import { Level, TileType, Tile, Position, Rect } from "./types";
 const levelConfig = {
   1: {
     zombieSpawnDelay: 1, // units: seconds
-    zombieSpeed: 50 // units: pixels per second
+    zombieSpeed: 100 // units: pixels per second
   },
   2: {
     zombieSpawnDelay: 1,
@@ -41,7 +41,9 @@ export default function d(levelNum: number): Level {
   }
 
   const playerStartPosition = position(levelJson.layers[1].objects[0]);
-  const itemStartPosition = position(levelJson.layers[1].objects[1]);
+  // const itemStartPosition = position(levelJson.layers[1].objects[1]);
+  const itemStartPositions = [{ x: 300, y: 0 }, { x: 300, y: 50 }];
+  // const itemStartPositions = [{ x: 300, y: 0 }];
   const goal = rect(levelJson.layers[1].objects[2]);
   const zombieConfig = levelConfig[levelNum];
 
@@ -52,7 +54,7 @@ export default function d(levelNum: number): Level {
     tiles,
     goal,
     playerStartPosition,
-    itemStartPosition,
+    itemStartPositions,
     zombieSpawnDelay: zombieConfig.zombieSpawnDelay,
     zombieSpeed: zombieConfig.zombieSpeed
   };

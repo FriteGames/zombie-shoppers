@@ -11,6 +11,8 @@ export type Player = {
 };
 
 export type Item = {
+  carrier?: string; // 'zombie' or 'player'
+  carrierId?: string;
   position: Position;
 };
 
@@ -19,13 +21,15 @@ export type Weapon = {
 };
 
 export type Zombie = {
+  id: string;
   position: Position;
   health: number;
+  carryingItem: boolean;
 };
 
 export type Zombies = {
   zombies: Array<Zombie>;
-  lastSpawn: number;
+  lastSpawn: number; // TODO get rid of this, and put in global state.
 };
 
 export type Bullet = {
@@ -59,7 +63,7 @@ export type State = {
   player: Player;
   bullets: Bullets;
   zombies: Zombies;
-  item: Item;
+  items: Array<Item>;
   mousePosition: Position;
   mousePressed: boolean;
   keysPressed: { [key: string]: boolean };
@@ -85,7 +89,7 @@ export type Level = {
   width: number;
   height: number;
   tiles: Array<Tile>;
-  itemStartPosition: Position;
+  itemStartPositions: Array<Position>;
   playerStartPosition: Position;
   goal: Rect;
 };
@@ -97,7 +101,9 @@ export enum Actions {
   MOUSE_MOVE,
   MOUSE_CLICK,
   COLLISION,
-  TRANSITION_GAME_STATE
+  TRANSITION_GAME_STATE,
+  ITEM_PICKUP,
+  ITEM_DROPPED
 }
 
 export type LoadLevelAction = {
@@ -137,6 +143,19 @@ export type TransitionGameStateAction = {
   gameState: GameState;
 };
 
+export type ItemPickupAction = {
+  type: Actions.ITEM_PICKUP;
+  itemId: number;
+  carrier: string;
+  carrierId?: string;
+};
+
+export type ItemDroppedAction = {
+  type: Actions.ITEM_DROPPED;
+  carrier: string;
+  carrierId?: string;
+};
+
 export type Action =
   | LoadLevelAction
   | TimestepAction
@@ -144,4 +163,6 @@ export type Action =
   | MouseMoveAction
   | MouseClickAction
   | CollisionAction
-  | TransitionGameStateAction;
+  | TransitionGameStateAction
+  | ItemPickupAction
+  | ItemDroppedAction;

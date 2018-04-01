@@ -23,3 +23,16 @@ gameLoop(timestamp):
   state = newState
   window.requestAnimationFrame(gameLoop)
 */
+
+// the sale is the disease...
+// the zombies don't die.. they just become disillusioned of the full price and walk out
+
+/*
+the world's population has been infected by a formidable disease.  97% of the world's poopMountains of debt have   The remaining 3% have been turned into mindless zombies with an insatiable lust for consumer goods.
+*/
+
+/*
+
+zombies pick up item and try to leave the store
+
+*/

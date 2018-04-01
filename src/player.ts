@@ -1,6 +1,8 @@
 import { worldCoordinates, overlaps, getRect } from "./utils";
-import { Player, Position, Action, Actions, State } from "./types";
+import { Player, Position, Action, Actions, State, Item } from "./types";
 import { WIDTH, HEIGHT } from "./config";
+import dispatch from "./dispatch";
+import * as _ from "lodash";
 
 let PLAYER_SPEED = 10;
 
@@ -18,34 +20,51 @@ function weaponAngle(player: Player, mousePos: Position): number {
   return Math.atan2(dx, dy) * 180 / Math.PI;
 }
 
-function shouldCarryItem(player: Player, itemPos: Position) {
-  if (!player.carryingItem) {
-    if (overlaps(getRect(player.position, "player"), getRect(itemPos, "item"))) {
-      return true;
-    }
-  }
-  return false;
-}
-
 export function playerReducer(player: Player, state: State, action: Action): Player {
   if (action.type === Actions.LOAD_LEVEL) {
     return {
       ...player,
       position: action.level.playerStartPosition
     };
-  }
-
-  if (action.type === Actions.KEYBOARD) {
+  } else if (action.type === Actions.KEYBOARD) {
     if (action.key === "space" && action.direction === "down") {
-      const carryingItem = shouldCarryItem(player, state.item.position);
+      const dropItem = player.carryingItem ? true : false;
+      const pickupItem: Item = _.find(state.items, item => {
+        return overlaps(getRect(player.position, "player"), getRect(item.position, "item")) &&
+          !player.carryingItem &&
+          !item.carrier
+          ? true
+          : false;
+      });
+
+      if (pickupItem) {
+        dispatch({
+          type: Actions.ITEM_PICKUP,
+          itemId: state.items.indexOf(pickupItem),
+          carrier: "player",
+          carrierId: null
+        });
+      } else if (dropItem) {
+        dispatch({
+          type: Actions.ITEM_DROPPED,
+          carrier: "player",
+          carrierId: null
+        });
+      }
+
       return {
         ...player,
-        carryingItem
+        carryingItem: dropItem ? false : pickupItem ? true : player.carryingItem
       };
     }
-  }
-
-  if (action.type === Actions.COLLISION) {
+  } else if (action.type === Actions.ITEM_PICKUP) {
+    if (action.carrier === "zombie") {
+      return {
+        ...player,
+        carryingItem: false
+      };
+    }
+  } else if (action.type === Actions.COLLISION) {
     if (action.collided === "ZOMBIE_PLAYER") {
       const health = player.health - 0.1;
       return {
@@ -53,9 +72,7 @@ export function playerReducer(player: Player, state: State, action: Action): Pla
         health
       };
     }
-  }
-
-  if (action.type === Actions.TIMESTEP) {
+  } else if (action.type === Actions.TIMESTEP) {
     const vx = state.keysPressed.d ? 1 : state.keysPressed.a ? -1 : 0;
     const vy = state.keysPressed.w ? -1 : state.keysPressed.s ? 1 : 0;
     const position: Position = playerPosition(player.position, vx, vy);

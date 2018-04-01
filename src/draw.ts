@@ -56,8 +56,10 @@ function drawPlayer(ctx, player: Player) {
   }
 }
 
-function drawItem(ctx, item: Item) {
-  drawRect(ctx, item.position.x, item.position.y, WIDTH["item"], HEIGHT["item"], COLORS["item"]);
+function drawItems(ctx, items: Array<Item>) {
+  for (var i of items) {
+    drawRect(ctx, i.position.x, i.position.y, WIDTH["item"], HEIGHT["item"], COLORS["item"]);
+  }
 }
 
 function drawBullets(ctx, bullets: Bullets) {
@@ -86,7 +88,9 @@ function setCameraPosition(position: Position, state: State): State {
   const shift_y = SCREEN_HEIGHT / 2 - position.y;
 
   const player = shiftPos({ ...state.player }, shift_x, shift_y);
-  const item = shiftPos({ ...state.item }, shift_x, shift_y);
+  const items = state.items.map(item => {
+    return shiftPos(item, shift_x, shift_y);
+  });
   const tiles = [...state.level.tiles].map(tile => {
     return shiftPos(tile, shift_x, shift_y);
   });
@@ -102,7 +106,7 @@ function setCameraPosition(position: Position, state: State): State {
     bullets: { bullets },
     zombies: { ...state.zombies, zombies },
     player,
-    item,
+    items,
     level: {
       ...state.level,
       tiles
@@ -135,7 +139,7 @@ export function draw(ctx, state: State) {
   drawPlayer(ctx, drawState.player);
   drawZombies(ctx, drawState.zombies);
   drawBullets(ctx, drawState.bullets);
-  drawItem(ctx, drawState.item);
+  drawItems(ctx, drawState.items);
 
   if (state.gameState === GameState.LEVELINTRO) {
     drawRect(ctx, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, "#fff");

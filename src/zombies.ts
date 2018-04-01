@@ -1,32 +1,29 @@
-import { Zombies, Zombie, Position, Actions, Action, State, Player } from "./types";
+import { Zombies, Zombie, Position, Actions, Action, State, Player, Item } from "./types";
+import { distance } from "./utils";
+import * as _ from "lodash";
+import dispatch from "./dispatch";
+import { SCREEN_WIDTH } from "./config";
 
 function spawn(): Zombie {
   return {
+    id: _.uniqueId("zombie"),
     position: {
-      x: 0,
+      x: _.random(0, SCREEN_WIDTH),
       y: 0
     },
-    health: 100
+    health: 100,
+    carryingItem: false
   };
 }
 
 function zombiePosition(
   zPos: Position,
-  itemPos: Position,
-  playerPos: Position,
+  destPos: Position,
   zombieSpeed: number,
   delta: number
 ): Position {
   // if the zombie is closer to the item, move towards the item.
   // if the zombie is closer to the player, move towards the player.
-
-  function d(p1: Position, p2: Position): number {
-    return Math.pow(p1.x - p2.x, 2) + Math.pow(p1.y - p2.y, 2);
-  }
-
-  const distToPlayer = d(zPos, playerPos);
-  const distToItem = d(zPos, itemPos);
-  const destPos = distToPlayer <= distToItem ? playerPos : itemPos;
 
   const dx = zPos.x - destPos.x;
   const dy = destPos.y - zPos.y;
@@ -39,24 +36,44 @@ function zombiePosition(
   };
 }
 
+function closestTarget(zombie: Zombie, items: Array<Item>, player: Player): Position {
+  const distPlayer = distance(zombie.position, player.position);
+
+  const availableItems = items.filter(item => {
+    return item.carrier ? false : true;
+  });
+
+  for (var item of availableItems) {
+    const distItem = distance(zombie.position, item.position);
+    if (distItem <= distPlayer) {
+      return item.position;
+    }
+  }
+  return player.position;
+}
+
 export const zombieReducer = function(zombies: Zombies, state: State, action: Action): Zombies {
   if (action.type === Actions.TIMESTEP) {
     const shouldSpawn = zombies.lastSpawn > state.level.zombieSpawnDelay;
     const lastSpawn = shouldSpawn ? 0 : zombies.lastSpawn + action.delta;
     let spawnedZombies: Array<Zombie> = [...zombies.zombies];
 
-    if (shouldSpawn && spawnedZombies.length === 0) {
+    if (shouldSpawn && spawnedZombies.length < 4) {
       spawnedZombies.push(spawn());
     }
 
     spawnedZombies = spawnedZombies.map(zombie => {
+      const destPos = zombie.carryingItem
+        ? state.level.goal.position
+        : closestTarget(zombie, state.items, state.player);
+
       const position = zombiePosition(
         zombie.position,
-        state.item.position,
-        state.player.position,
+        destPos,
         state.level.zombieSpeed,
         action.delta
       );
+
       return { ...zombie, position };
     });
 
@@ -71,12 +88,29 @@ export const zombieReducer = function(zombies: Zombies, state: State, action: Ac
           return i === action.data.zombie ? { ...zombie, health: zombie.health - 10 } : zombie;
         })
         .filter(zombie => {
-          return zombie.health > 0;
+          if (zombie.health <= 0) {
+            dispatch({
+              type: Actions.ITEM_DROPPED,
+              carrier: "zombie",
+              carrierId: zombie.id
+            });
+            return false;
+          }
+          return true;
         });
 
       return {
         ...zombies,
         zombies: aliveZombies
+      };
+    }
+  } else if (action.type === Actions.ITEM_PICKUP) {
+    if (action.carrier === "zombie") {
+      return {
+        ...zombies,
+        zombies: zombies.zombies.map(zombie => {
+          return zombie.id === action.carrierId ? { ...zombie, carryingItem: true } : zombie;
+        })
       };
     }
   }

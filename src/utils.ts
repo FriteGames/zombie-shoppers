@@ -42,3 +42,16 @@ export function overlaps(r1, r2) {
     r1.y + r1.height > r2.y
   );
 }
+
+export function distance(p1: Position, p2: Position): number {
+  return Math.pow(p1.x - p2.x, 2) + Math.pow(p1.y - p2.y, 2);
+}
+
+// export function shouldCarryItem(player: Player, itemPos: Position) {
+//   if (!player.carryingItem) {
+//     if (overlaps(getRect(player.position, "player"), getRect(itemPos, "item"))) {
+//       return true;
+//     }
+//   }
+//   return false;
+// }
