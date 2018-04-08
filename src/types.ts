@@ -25,6 +25,7 @@ export type Zombie = {
   position: Position;
   health: number;
   carryingItem: boolean;
+  spawnLocation: Position;
 };
 
 export type Zombies = {
@@ -69,6 +70,9 @@ export type State = {
   keysPressed: { [key: string]: boolean };
   level: Level;
   gameState: GameState;
+  itemsStolen: number;
+  zombiesKilled: number;
+  livesRemaining: number;
 };
 
 export enum TileType {
@@ -92,6 +96,8 @@ export type Level = {
   itemStartPositions: Array<Position>;
   playerStartPosition: Position;
   goal: Rect;
+  itemsAvailable: number;
+  zombiesToKill: number;
 };
 
 export enum Actions {
@@ -103,7 +109,10 @@ export enum Actions {
   COLLISION,
   TRANSITION_GAME_STATE,
   ITEM_PICKUP,
-  ITEM_DROPPED
+  ITEM_DROPPED,
+  ITEM_STOLEN,
+  ZOMBIE_KILLED,
+  LIFE_LOST
 }
 
 export type LoadLevelAction = {
@@ -156,6 +165,15 @@ export type ItemDroppedAction = {
   carrierId?: string;
 };
 
+export type ItemStolenAction = {
+  type: Actions.ITEM_STOLEN;
+  zombieId: string;
+};
+
+export type ZombieKilledAction = {
+  type: Actions.ZOMBIE_KILLED;
+};
+
 export type Action =
   | LoadLevelAction
   | TimestepAction
@@ -165,4 +183,6 @@ export type Action =
   | CollisionAction
   | TransitionGameStateAction
   | ItemPickupAction
-  | ItemDroppedAction;
+  | ItemDroppedAction
+  | ItemStolenAction
+  | ZombieKilledAction;

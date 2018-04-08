@@ -3,6 +3,8 @@ import { playerReducer } from "./player";
 import { zombieReducer } from "./zombies";
 import { bulletReducer } from "./bullets";
 import * as _ from "lodash";
+import dispatch from "./dispatch";
+import presentLevel from "./PresentLevel";
 
 export default function reducer(state: State, action: Action): State {
   return {
@@ -15,8 +17,42 @@ export default function reducer(state: State, action: Action): State {
     bullets: bulletReducer(state.bullets, state, action),
     items: itemsReducer(state.items, state, action),
     level: levelReducer(state.level, state, action),
-    gameState: gameStateReducer(state.gameState, state, action)
+    gameState: gameStateReducer(state.gameState, state, action),
+    zombiesKilled: zombiesKilledReducer(state.zombiesKilled, state, action),
+    itemsStolen: itemsStolenReducer(state.itemsStolen, state, action),
+    livesRemaining: livesRemainingReducer(state.livesRemaining, state, action)
   };
+}
+
+function livesRemainingReducer(livesRemaining: number, state: State, action) {
+  if (action.type === Actions.LIFE_LOST) {
+    console.log("reloading level!");
+    presentLevel(state.level.number);
+    return livesRemaining - 1;
+  }
+  return livesRemaining;
+}
+
+function itemsStolenReducer(itemsStolen: number, state: State, action) {
+  if (action.type === Actions.LOAD_LEVEL) {
+    return 0;
+  } else if (action.type === Actions.ITEM_STOLEN) {
+    const stolen = itemsStolen + 1;
+    if (stolen === state.level.itemsAvailable) {
+      dispatch({ type: Actions.LIFE_LOST });
+    }
+    return stolen;
+  }
+  return itemsStolen;
+}
+
+function zombiesKilledReducer(zombiesKilled: number, state: State, action: Action): number {
+  if (action.type === Actions.LOAD_LEVEL) {
+    return 0;
+  } else if (action.type === Actions.ZOMBIE_KILLED) {
+    return zombiesKilled + 1;
+  }
+  return zombiesKilled;
 }
 
 function gameStateReducer(gameState: GameState, state: State, action: Action): GameState {
@@ -39,7 +75,6 @@ function itemsReducer(items: Array<Item>, state: State, action: Action): Array<I
       return { position: p, carrier: null, carrierId: null };
     });
   } else if (action.type === Actions.ITEM_PICKUP) {
-    console.log("item pickedup!f");
     return items.map((item, i) => {
       return i === action.itemId
         ? { ...item, carrier: action.carrier, carrierId: action.carrierId }
@@ -63,6 +98,10 @@ function itemsReducer(items: Array<Item>, state: State, action: Action): Array<I
               ? _.find(state.zombies.zombies, { id: item.carrierId }).position
               : item.position
       };
+    });
+  } else if (action.type === Actions.ITEM_STOLEN) {
+    return _.filter(items, item => {
+      return item.carrierId === null ? true : item.carrierId === action.zombieId ? false : true;
     });
   }
 

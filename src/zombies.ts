@@ -5,12 +5,11 @@ import dispatch from "./dispatch";
 import { SCREEN_WIDTH } from "./config";
 
 function spawn(): Zombie {
+  const spawnPos = { x: _.random(0, SCREEN_WIDTH), y: 0 };
   return {
     id: _.uniqueId("zombie"),
-    position: {
-      x: _.random(0, SCREEN_WIDTH),
-      y: 0
-    },
+    position: spawnPos,
+    spawnLocation: spawnPos,
     health: 100,
     carryingItem: false
   };
@@ -53,18 +52,23 @@ function closestTarget(zombie: Zombie, items: Array<Item>, player: Player): Posi
 }
 
 export const zombieReducer = function(zombies: Zombies, state: State, action: Action): Zombies {
-  if (action.type === Actions.TIMESTEP) {
+  if (action.type === Actions.LOAD_LEVEL) {
+    return {
+      ...zombies,
+      zombies: []
+    };
+  } else if (action.type === Actions.TIMESTEP) {
     const shouldSpawn = zombies.lastSpawn > state.level.zombieSpawnDelay;
     const lastSpawn = shouldSpawn ? 0 : zombies.lastSpawn + action.delta;
     let spawnedZombies: Array<Zombie> = [...zombies.zombies];
 
-    if (shouldSpawn && spawnedZombies.length < 4) {
+    if (shouldSpawn) {
       spawnedZombies.push(spawn());
     }
 
     spawnedZombies = spawnedZombies.map(zombie => {
       const destPos = zombie.carryingItem
-        ? state.level.goal.position
+        ? zombie.spawnLocation
         : closestTarget(zombie, state.items, state.player);
 
       const position = zombiePosition(
@@ -85,7 +89,7 @@ export const zombieReducer = function(zombies: Zombies, state: State, action: Ac
     if (action.collided === "ZOMBIE_BULLET") {
       const aliveZombies = zombies.zombies
         .map((zombie, i) => {
-          return i === action.data.zombie ? { ...zombie, health: zombie.health - 10 } : zombie;
+          return i === action.data.zombie ? { ...zombie, health: zombie.health - 50 } : zombie;
         })
         .filter(zombie => {
           if (zombie.health <= 0) {
@@ -93,6 +97,9 @@ export const zombieReducer = function(zombies: Zombies, state: State, action: Ac
               type: Actions.ITEM_DROPPED,
               carrier: "zombie",
               carrierId: zombie.id
+            });
+            dispatch({
+              type: Actions.ZOMBIE_KILLED
             });
             return false;
           }
@@ -113,6 +120,13 @@ export const zombieReducer = function(zombies: Zombies, state: State, action: Ac
         })
       };
     }
+  } else if (action.type === Actions.ITEM_STOLEN) {
+    return {
+      ...zombies,
+      zombies: _.filter(zombies.zombies, zombie => {
+        return action.zombieId === zombie.id ? false : true;
+      })
+    };
   }
 
   return zombies;

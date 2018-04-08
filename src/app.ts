@@ -7,6 +7,7 @@ import loadLevel from "./level";
 import * as _ from "lodash";
 import dispatch, { getState } from "./dispatch";
 import { KeyboardAction, Actions, GameState, State } from "./types";
+import presentLevel from "./PresentLevel";
 
 let canvas;
 let ctx;
@@ -48,14 +49,6 @@ function init() {
   gameLoop(0);
 }
 
-function presentLevel(levelNum: number) {
-  dispatch({ type: Actions.LOAD_LEVEL, level: loadLevel(levelNum) });
-  // dispatch({ type: Actions.TRANSITION_GAME_STATE, gameState: GameState.LEVELINTRO });
-  // setTimeout(() => {
-  //   dispatch({ type: Actions.TRANSITION_GAME_STATE, gameState: GameState.GAME });
-  // }, 2000);
-}
-
 let previousTimestamp;
 function gameLoop(timestamp) {
   if (!previousTimestamp) {
@@ -77,21 +70,18 @@ function gameLoop(timestamp) {
   ctx.font = "14px serif";
   ctx.fillStyle = "#000";
   ctx.fillText(`FPS: ${fps}`, 10, 20);
+  ctx.fillText(`Items Stolen: ${state.itemsStolen} / ${state.level.itemsAvailable}`, 10, 40);
+  ctx.fillText(`Zombies Killed: ${state.zombiesKilled} / ${state.level.zombiesToKill}`, 10, 60);
+  ctx.fillText(`Lives Remaining: ${state.livesRemaining}`, 10, 80);
 
-  if (
-    overlaps(getRect(state.items[0].position, "item"), {
-      x: state.level.goal.position.x,
-      y: state.level.goal.position.y,
-      width: state.level.goal.width,
-      height: state.level.goal.height
-    })
-  ) {
-    console.log("you lose!");
-    // presentLevel(state.level.number + 1);
+  if (state.zombiesKilled === state.level.zombiesToKill) {
+    console.log("you've killed all the zombies! go to next level");
+    // should proceed to next level
+    // return;
   }
 
-  if (state.player.health <= 0) {
-    console.log("dead");
+  if (state.livesRemaining === 0) {
+    console.log("you lose!"); // go to main menu
     return;
   }
 
@@ -155,7 +145,6 @@ function checkCollisions(state: State) {
       };
 
       if (overlaps(r1, r2)) {
-        console.log("overlaps!");
         dispatch({
           type: Actions.ITEM_PICKUP,
           itemId: state.items.indexOf(i),
@@ -164,6 +153,17 @@ function checkCollisions(state: State) {
         });
       }
       break;
+    }
+  }
+
+  // if a zombie returns to its starting position,
+  // dispatch ZOMBIE_STOLE_ITEM with params zombie id
+  for (var z of state.zombies.zombies) {
+    if (z.position.y <= 1 && z.carryingItem) {
+      dispatch({
+        type: Actions.ITEM_STOLEN,
+        zombieId: z.id
+      });
     }
   }
 }

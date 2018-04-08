@@ -24,7 +24,9 @@ export function playerReducer(player: Player, state: State, action: Action): Pla
   if (action.type === Actions.LOAD_LEVEL) {
     return {
       ...player,
-      position: action.level.playerStartPosition
+      position: action.level.playerStartPosition,
+      health: 100,
+      carryingItem: false
     };
   } else if (action.type === Actions.KEYBOARD) {
     if (action.key === "space" && action.direction === "down") {
@@ -80,6 +82,10 @@ export function playerReducer(player: Player, state: State, action: Action): Pla
       player,
       worldCoordinates(state.mousePosition, player.position)
     );
+
+    if (player.health <= 0) {
+      dispatch({ type: Actions.LIFE_LOST });
+    }
 
     return {
       ...player,
