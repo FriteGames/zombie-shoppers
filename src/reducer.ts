@@ -20,8 +20,18 @@ export default function reducer(state: State, action: Action): State {
     gameState: gameStateReducer(state.gameState, state, action),
     zombiesKilled: zombiesKilledReducer(state.zombiesKilled, state, action),
     itemsStolen: itemsStolenReducer(state.itemsStolen, state, action),
-    livesRemaining: livesRemainingReducer(state.livesRemaining, state, action)
+    livesRemaining: livesRemainingReducer(state.livesRemaining, state, action),
+    paused: pausedReducer(state.paused, state, action)
   };
+}
+
+function pausedReducer(paused: boolean, state: State, action) {
+  if (action.type === Actions.KEYBOARD) {
+    if (action.key === "p" && action.direction === "down") {
+      return !paused;
+    }
+  }
+  return paused;
 }
 
 function livesRemainingReducer(livesRemaining: number, state: State, action) {

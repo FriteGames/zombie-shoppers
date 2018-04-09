@@ -30,7 +30,7 @@ function init() {
     return { type: Actions.KEYBOARD, key, direction };
   }
 
-  ["w", "s", "a", "d", "space"].forEach(key => {
+  ["w", "s", "a", "d", "space", "p"].forEach(key => {
     Mousetrap.bind(key, () => dispatch(createKeyboardAction(key, "down")), "keydown");
     Mousetrap.bind(key, () => dispatch(createKeyboardAction(key, "up")), "keyup");
   });
@@ -62,7 +62,7 @@ function gameLoop(timestamp) {
 
   // check for collisions right here
   checkCollisions(state);
-  if (state.gameState === GameState.GAME) {
+  if (state.gameState === GameState.GAME && !state.paused) {
     dispatch({ type: Actions.TIMESTEP, delta });
   }
 

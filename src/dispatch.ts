@@ -24,7 +24,8 @@ const initialState: State = {
   gameState: GameState.GAME,
   zombiesKilled: 0,
   itemsStolen: 0,
-  livesRemaining: 3
+  livesRemaining: 3,
+  paused: false
 };
 
 let state: State = initialState;

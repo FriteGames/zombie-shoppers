@@ -69,6 +69,7 @@ export type State = {
   itemsStolen: number;
   zombiesKilled: number;
   livesRemaining: number;
+  paused: boolean;
 };
 
 export enum TileType {
