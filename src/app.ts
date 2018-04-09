@@ -76,8 +76,7 @@ function gameLoop(timestamp) {
 
   if (state.zombiesKilled === state.level.zombiesToKill) {
     console.log("you've killed all the zombies! go to next level");
-    // should proceed to next level
-    // return;
+    presentLevel(state.level.number + 1);
   }
 
   if (state.livesRemaining === 0) {
@@ -93,7 +92,7 @@ window.onload = init;
 
 function checkCollisions(state: State) {
   for (var z of state.zombies.zombies) {
-    for (var b of state.bullets.bullets) {
+    for (var b of state.bullets) {
       if (
         overlaps(
           { x: z.position.x, y: z.position.y, width: WIDTH.zombie, height: HEIGHT.zombie },
@@ -105,7 +104,7 @@ function checkCollisions(state: State) {
           collided: "ZOMBIE_BULLET",
           data: {
             zombie: state.zombies.zombies.indexOf(z),
-            bullet: state.bullets.bullets.indexOf(b)
+            bullet: state.bullets.indexOf(b)
           }
         });
       }

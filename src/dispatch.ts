@@ -11,9 +11,7 @@ const initialState: State = {
       angle: 0
     }
   },
-  bullets: {
-    bullets: []
-  },
+  bullets: [],
   zombies: {
     lastSpawn: 0,
     zombies: []

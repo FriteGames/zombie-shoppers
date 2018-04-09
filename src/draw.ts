@@ -3,13 +3,13 @@ import {
   State,
   Player,
   Weapon,
-  Bullets,
   Zombies,
   Position,
   Item,
   Tile,
   TileType,
-  GameState
+  GameState,
+  Bullet
 } from "./types";
 
 function drawRect(ctx, x, y, width, height, color) {
@@ -62,8 +62,8 @@ function drawItems(ctx, items: Array<Item>) {
   }
 }
 
-function drawBullets(ctx, bullets: Bullets) {
-  for (var b of bullets.bullets) {
+function drawBullets(ctx, bullets: Array<Bullet>) {
+  for (var b of bullets) {
     drawRect(ctx, b.position.x, b.position.y, WIDTH["bullet"], HEIGHT["bullet"], COLORS["bullet"]);
   }
 }
@@ -94,7 +94,7 @@ function setCameraPosition(position: Position, state: State): State {
   const tiles = [...state.level.tiles].map(tile => {
     return shiftPos(tile, shift_x, shift_y);
   });
-  const bullets = [...state.bullets.bullets].map(bullet => {
+  const bullets = [...state.bullets].map(bullet => {
     return shiftPos(bullet, shift_x, shift_y);
   });
   const zombies = [...state.zombies.zombies].map(zombie => {
@@ -103,7 +103,7 @@ function setCameraPosition(position: Position, state: State): State {
 
   return {
     ...state,
-    bullets: { bullets },
+    bullets: bullets,
     zombies: { ...state.zombies, zombies },
     player,
     items,

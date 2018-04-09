@@ -39,10 +39,6 @@ export type Bullet = {
   readonly angle: number;
 };
 
-export type Bullets = {
-  bullets: Array<Bullet>;
-};
-
 export type Background = {
   position: Position;
   width: number;
@@ -62,7 +58,7 @@ export enum GameState {
 
 export type State = {
   player: Player;
-  bullets: Bullets;
+  bullets: Array<Bullet>;
   zombies: Zombies;
   items: Array<Item>;
   mousePosition: Position;
