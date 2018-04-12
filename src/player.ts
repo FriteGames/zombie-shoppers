@@ -28,7 +28,7 @@ export function playerReducer(player: Player, state: State, action: Action): Pla
       health: 100,
       carryingItem: false
     };
-  } else if (action.type === Actions.KEYBOARD) {
+  } else if (action.type === Actions.KEYBOARD && !state.paused) {
     if (action.key === "space" && action.direction === "down") {
       const dropItem = player.carryingItem ? true : false;
       const pickupItem: Item = _.find(state.items, item => {
@@ -40,6 +40,10 @@ export function playerReducer(player: Player, state: State, action: Action): Pla
       });
 
       if (pickupItem) {
+        // functional solution to dispatch problem:
+        // set player.carryingItem and itemId
+        // on a timestep action of the item, check to see if item is what is being carried by the player
+        // set carrier on item
         dispatch({
           type: Actions.ITEM_PICKUP,
           itemId: state.items.indexOf(pickupItem),

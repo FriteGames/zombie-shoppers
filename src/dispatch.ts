@@ -21,7 +21,7 @@ const initialState: State = {
   mousePressed: false,
   keysPressed: { w: false, a: false, s: false, d: false },
   level: null,
-  gameState: GameState.GAME,
+  gameState: GameState.MENU,
   zombiesKilled: 0,
   itemsStolen: 0,
   livesRemaining: 3,

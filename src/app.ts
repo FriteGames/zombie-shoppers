@@ -45,7 +45,6 @@ function init() {
     dispatch({ type: Actions.MOUSE_CLICK, direction: "mouseup" });
   });
 
-  presentLevel(1);
   gameLoop(0);
 }
 
@@ -59,29 +58,30 @@ function gameLoop(timestamp) {
   let delta = (timestamp - previousTimestamp) / 1000; // units: seconds
   const fps = 1 / delta;
   const state = getState();
+  draw(ctx, state);
 
   // check for collisions right here
-  checkCollisions(state);
-  if (state.gameState === GameState.GAME && !state.paused) {
-    dispatch({ type: Actions.TIMESTEP, delta });
-  }
+  if (state.gameState === GameState.GAME) {
+    if (!state.paused) {
+      checkCollisions(state);
+      dispatch({ type: Actions.TIMESTEP, delta });
 
-  draw(ctx, state);
-  ctx.font = "14px serif";
-  ctx.fillStyle = "#000";
-  ctx.fillText(`FPS: ${fps}`, 10, 20);
-  ctx.fillText(`Items Stolen: ${state.itemsStolen} / ${state.level.itemsAvailable}`, 10, 40);
-  ctx.fillText(`Zombies Killed: ${state.zombiesKilled} / ${state.level.zombiesToKill}`, 10, 60);
-  ctx.fillText(`Lives Remaining: ${state.livesRemaining}`, 10, 80);
+      if (state.zombiesKilled === state.level.zombiesToKill) {
+        console.log("you've killed all the zombies! go to next level");
+        presentLevel(state.level.number + 1); // this should be a dispatch action.
+      }
 
-  if (state.zombiesKilled === state.level.zombiesToKill) {
-    console.log("you've killed all the zombies! go to next level");
-    presentLevel(state.level.number + 1);
-  }
-
-  if (state.livesRemaining === 0) {
-    console.log("you lose!"); // go to main menu
-    return;
+      if (state.livesRemaining === 0) {
+        console.log("you lose!"); // go to main menu
+        dispatch({ type: Actions.TRANSITION_GAME_STATE, gameState: GameState.MENU });
+      }
+    }
+    ctx.font = "14px serif";
+    ctx.fillStyle = "#000";
+    ctx.fillText(`FPS: ${fps}`, 10, 20);
+    ctx.fillText(`Items Stolen: ${state.itemsStolen} / ${state.level.itemsAvailable}`, 10, 40);
+    ctx.fillText(`Zombies Killed: ${state.zombiesKilled} / ${state.level.zombiesToKill}`, 10, 60);
+    ctx.fillText(`Lives Remaining: ${state.livesRemaining}`, 10, 80);
   }
 
   window.requestAnimationFrame(gameLoop);
