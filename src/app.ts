@@ -1,5 +1,12 @@
 import * as Mousetrap from "mousetrap";
-import { WORLD_WIDTH, HEIGHT, WORLD_HEIGHT, SCREEN_WIDTH, SCREEN_HEIGHT, WIDTH } from "./config";
+import {
+  WORLD_WIDTH,
+  HEIGHT,
+  WORLD_HEIGHT,
+  SCREEN_WIDTH,
+  SCREEN_HEIGHT,
+  WIDTH
+} from "./config";
 import { draw } from "./draw";
 import { overlaps, getRect } from "./utils";
 
@@ -8,9 +15,11 @@ import * as _ from "lodash";
 import dispatch, { getState } from "./dispatch";
 import { KeyboardAction, Actions, GameState, State } from "./types";
 import presentLevel from "./PresentLevel";
+import EventListener from "./EventListener";
 
 let canvas;
 let ctx;
+let eventListener = new EventListener();
 
 function getMousePos(e) {
   let rect = canvas.getBoundingClientRect();
@@ -31,8 +40,16 @@ function init() {
   }
 
   ["w", "s", "a", "d", "space", "p"].forEach(key => {
-    Mousetrap.bind(key, () => dispatch(createKeyboardAction(key, "down")), "keydown");
-    Mousetrap.bind(key, () => dispatch(createKeyboardAction(key, "up")), "keyup");
+    Mousetrap.bind(
+      key,
+      () => dispatch(createKeyboardAction(key, "down")),
+      "keydown"
+    );
+    Mousetrap.bind(
+      key,
+      () => dispatch(createKeyboardAction(key, "up")),
+      "keyup"
+    );
   });
 
   canvas.addEventListener("mousemove", e => {
@@ -45,11 +62,24 @@ function init() {
     dispatch({ type: Actions.MOUSE_CLICK, direction: "mouseup" });
   });
 
+  eventListener.register((state: State) => {
+    if (state.zombiesKilled === state.level.zombiesToKill) {
+      console.log("should move to next level");
+      return [
+        true,
+        { type: Actions.LOAD_LEVEL, level: loadLevel(state.level.number + 1) }
+      ];
+    } else {
+      return [false, {}];
+    }
+  });
+
   presentLevel(1);
   gameLoop(0);
 }
 
 let previousTimestamp;
+
 function gameLoop(timestamp) {
   if (!previousTimestamp) {
     window.requestAnimationFrame(gameLoop);
@@ -66,23 +96,32 @@ function gameLoop(timestamp) {
     dispatch({ type: Actions.TIMESTEP, delta });
   }
 
-  draw(ctx, state);
-  ctx.font = "14px serif";
-  ctx.fillStyle = "#000";
-  ctx.fillText(`FPS: ${fps}`, 10, 20);
-  ctx.fillText(`Items Stolen: ${state.itemsStolen} / ${state.level.itemsAvailable}`, 10, 40);
-  ctx.fillText(`Zombies Killed: ${state.zombiesKilled} / ${state.level.zombiesToKill}`, 10, 60);
-  ctx.fillText(`Lives Remaining: ${state.livesRemaining}`, 10, 80);
-
-  if (state.zombiesKilled === state.level.zombiesToKill) {
-    console.log("you've killed all the zombies! go to next level");
-    presentLevel(state.level.number + 1);
-  }
+  eventListener.listen();
+  // if (state.zombiesKilled === state.level.zombiesToKill) {
+  //   console.log("you've killed all the zombies! go to next level");
+  //   presentLevel(state.level.number + 1);
+  // }
 
   if (state.livesRemaining === 0) {
     console.log("you lose!"); // go to main menu
     return;
   }
+
+  draw(ctx, state);
+  ctx.font = "14px serif";
+  ctx.fillStyle = "#000";
+  ctx.fillText(`FPS: ${fps}`, 10, 20);
+  ctx.fillText(
+    `Items Stolen: ${state.itemsStolen} / ${state.level.itemsAvailable}`,
+    10,
+    40
+  );
+  ctx.fillText(
+    `Zombies Killed: ${state.zombiesKilled} / ${state.level.zombiesToKill}`,
+    10,
+    60
+  );
+  ctx.fillText(`Lives Remaining: ${state.livesRemaining}`, 10, 80);
 
   window.requestAnimationFrame(gameLoop);
   previousTimestamp = timestamp;
@@ -95,8 +134,18 @@ function checkCollisions(state: State) {
     for (var b of state.bullets) {
       if (
         overlaps(
-          { x: z.position.x, y: z.position.y, width: WIDTH.zombie, height: HEIGHT.zombie },
-          { x: b.position.x, y: b.position.y, width: WIDTH.bullet, height: HEIGHT.bullet }
+          {
+            x: z.position.x,
+            y: z.position.y,
+            width: WIDTH.zombie,
+            height: HEIGHT.zombie
+          },
+          {
+            x: b.position.x,
+            y: b.position.y,
+            width: WIDTH.bullet,
+            height: HEIGHT.bullet
+          }
         )
       ) {
         dispatch({
@@ -112,7 +161,12 @@ function checkCollisions(state: State) {
   }
 
   for (var z of state.zombies.zombies) {
-    const r1 = { x: z.position.x, y: z.position.y, width: WIDTH.zombie, height: HEIGHT.zombie };
+    const r1 = {
+      x: z.position.x,
+      y: z.position.y,
+      width: WIDTH.zombie,
+      height: HEIGHT.zombie
+    };
     const r2 = {
       x: state.player.position.x,
       y: state.player.position.y,
@@ -135,7 +189,12 @@ function checkCollisions(state: State) {
     });
 
     for (var i of availableItems) {
-      const r1 = { x: z.position.x, y: z.position.y, width: WIDTH.zombie, height: HEIGHT.zombie };
+      const r1 = {
+        x: z.position.x,
+        y: z.position.y,
+        width: WIDTH.zombie,
+        height: HEIGHT.zombie
+      };
       const r2 = {
         x: i.position.x,
         y: i.position.y,

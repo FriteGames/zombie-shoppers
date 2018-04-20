@@ -1,0 +1,39 @@
+gameStateReducer
+    on space pressed:
+    if game state === Menu:
+        return INTRO
+    
+    on timestep:
+    if game state === INTRO:
+        if time in intro state === wait time:
+            return game
+        else 
+            return incr time in intro state
+
+    if game state === Game:
+        if player health === 0:
+            if lives remaining === 0:
+                return MENU
+            else:
+                return INTRO // start the level over
+
+levelReducer
+    on timestep:
+    if game state === intro and level not loaded
+        load level to load // need state to store "next level"
+
+nextLevelReducer
+    on timestamp:
+    if game state === Intro:
+        if all zombies killed:
+            return next level
+        else if player health is 0 and more lives:
+            return same level
+        else if player health is 0 and no more lives:
+            return 0
+
+playerReducer
+    on timestep
+    if game state === intro
+        return reset player
+
