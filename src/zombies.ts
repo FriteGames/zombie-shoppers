@@ -1,4 +1,13 @@
-import { Zombies, Zombie, Position, Actions, Action, State, Player, Item } from "./types";
+import {
+  Zombies,
+  Zombie,
+  Position,
+  Actions,
+  Action,
+  State,
+  Player,
+  Item
+} from "./types";
 import { distance } from "./utils";
 import * as _ from "lodash";
 import dispatch from "./dispatch";
@@ -35,7 +44,11 @@ function zombiePosition(
   };
 }
 
-function closestTarget(zombie: Zombie, items: Array<Item>, player: Player): Position {
+function closestTarget(
+  zombie: Zombie,
+  items: Array<Item>,
+  player: Player
+): Position {
   const distPlayer = distance(zombie.position, player.position);
 
   const availableItems = items.filter(item => {
@@ -51,13 +64,17 @@ function closestTarget(zombie: Zombie, items: Array<Item>, player: Player): Posi
   return player.position;
 }
 
-export const zombieReducer = function(zombies: Zombies, state: State, action: Action): Zombies {
+export const zombieReducer = function(
+  zombies: Zombies,
+  state: State,
+  action: Action
+): Zombies {
   if (action.type === Actions.LOAD_LEVEL) {
     return {
       ...zombies,
       zombies: []
     };
-  } else if (action.type === Actions.TIMESTEP) {
+  } else if (action.type === Actions.TIMESTEP && state.level) {
     const shouldSpawn = zombies.lastSpawn > state.level.zombieSpawnDelay;
     const lastSpawn = shouldSpawn ? 0 : zombies.lastSpawn + action.delta;
     let spawnedZombies: Array<Zombie> = [...zombies.zombies];
@@ -89,7 +106,9 @@ export const zombieReducer = function(zombies: Zombies, state: State, action: Ac
     if (action.collided === "ZOMBIE_BULLET") {
       const aliveZombies = zombies.zombies
         .map((zombie, i) => {
-          return i === action.data.zombie ? { ...zombie, health: zombie.health - 50 } : zombie;
+          return i === action.data.zombie
+            ? { ...zombie, health: zombie.health - 50 }
+            : zombie;
         })
         .filter(zombie => {
           if (zombie.health <= 0) {
@@ -116,7 +135,9 @@ export const zombieReducer = function(zombies: Zombies, state: State, action: Ac
       return {
         ...zombies,
         zombies: zombies.zombies.map(zombie => {
-          return zombie.id === action.carrierId ? { ...zombie, carryingItem: true } : zombie;
+          return zombie.id === action.carrierId
+            ? { ...zombie, carryingItem: true }
+            : zombie;
         })
       };
     }

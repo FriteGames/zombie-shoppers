@@ -15,10 +15,14 @@ const levelConfig = {
   }
 };
 
-const levels = [require("../levels/level1.json"), require("../levels/level2.json")];
+const levels = [
+  require("../levels/level1.json"),
+  require("../levels/level2.json")
+];
 
-export default function d(levelNum: number): Level {
+export default function loadLevel(levelNum: number): Level {
   const levelJson = levels[levelNum - 1];
+
   const width = levelJson.width;
   const height = levelJson.height;
 
@@ -46,7 +50,11 @@ export default function d(levelNum: number): Level {
 
   const playerStartPosition = position(levelJson.layers[1].objects[0]);
   // const itemStartPosition = position(levelJson.layers[1].objects[1]);
-  const itemStartPositions = [{ x: 500, y: 500 }, { x: 550, y: 500 }, { x: 600, y: 500 }];
+  const itemStartPositions = [
+    { x: 500, y: 500 },
+    { x: 550, y: 500 },
+    { x: 600, y: 500 }
+  ];
   // const itemStartPositions = [{ x: 300, y: 0 }];
   const goal = rect(levelJson.layers[1].objects[2]);
   const conf = levelConfig[levelNum];

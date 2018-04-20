@@ -1,5 +1,13 @@
 import { worldCoordinates, overlaps, getRect } from "./utils";
-import { Player, Position, Action, Actions, State, Item } from "./types";
+import {
+  Player,
+  Position,
+  Action,
+  Actions,
+  State,
+  Item,
+  GameStateType
+} from "./types";
 import { WIDTH, HEIGHT } from "./config";
 import dispatch from "./dispatch";
 import * as _ from "lodash";
@@ -20,19 +28,19 @@ function weaponAngle(player: Player, mousePos: Position): number {
   return Math.atan2(dx, dy) * 180 / Math.PI;
 }
 
-export function playerReducer(player: Player, state: State, action: Action): Player {
-  if (action.type === Actions.LOAD_LEVEL) {
-    return {
-      ...player,
-      position: action.level.playerStartPosition,
-      health: 100,
-      carryingItem: false
-    };
-  } else if (action.type === Actions.KEYBOARD && !state.paused) {
+export function playerReducer(
+  player: Player,
+  state: State,
+  action: Action
+): Player {
+  if (action.type === Actions.KEYBOARD && !state.paused) {
     if (action.key === "space" && action.direction === "down") {
       const dropItem = player.carryingItem ? true : false;
       const pickupItem: Item = _.find(state.items, item => {
-        return overlaps(getRect(player.position, "player"), getRect(item.position, "item")) &&
+        return overlaps(
+          getRect(player.position, "player"),
+          getRect(item.position, "item")
+        ) &&
           !player.carryingItem &&
           !item.carrier
           ? true
@@ -79,6 +87,15 @@ export function playerReducer(player: Player, state: State, action: Action): Pla
       };
     }
   } else if (action.type === Actions.TIMESTEP) {
+    if (state.gameState.type === GameStateType.LEVELINTRO && state.level) {
+      return {
+        ...player,
+        position: state.level.playerStartPosition,
+        health: 100,
+        carryingItem: false
+      };
+    }
+
     const vx = state.keysPressed.d ? 1 : state.keysPressed.a ? -1 : 0;
     const vy = state.keysPressed.w ? -1 : state.keysPressed.s ? 1 : 0;
     const position: Position = playerPosition(player.position, vx, vy);
@@ -88,7 +105,10 @@ export function playerReducer(player: Player, state: State, action: Action): Pla
     );
 
     if (player.health <= 0) {
-      dispatch({ type: Actions.LIFE_LOST });
+      return {
+        ...player,
+        livesRemaining: player.livesRemaining - 1
+      };
     }
 
     return {

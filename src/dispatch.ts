@@ -1,4 +1,4 @@
-import { State, GameState } from "./types";
+import { State, GameStateType } from "./types";
 import reducer from "./reducer";
 import * as _ from "lodash";
 
@@ -7,6 +7,7 @@ const initialState: State = {
     position: { x: 0, y: 0 },
     health: 100,
     carryingItem: false,
+    livesRemaining: 3,
     weapon: {
       angle: 0
     }
@@ -21,10 +22,9 @@ const initialState: State = {
   mousePressed: false,
   keysPressed: { w: false, a: false, s: false, d: false },
   level: null,
-  gameState: GameState.MENU,
+  gameState: { type: GameStateType.GAME, timeSinceIntro: 0 },
   zombiesKilled: 0,
   itemsStolen: 0,
-  livesRemaining: 3,
   paused: false
 };
 

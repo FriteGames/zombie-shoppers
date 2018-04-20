@@ -1,22 +1,21 @@
-import { State, Action, Actions, GameState, Level, Item, Position } from "./types";
+import {
+  State,
+  Action,
+  Actions,
+  GameState,
+  GameStateType,
+  Level,
+  Item,
+  Position
+} from "./types";
 import { playerReducer } from "./player";
 import { zombieReducer } from "./zombies";
 import { bulletReducer } from "./bullets";
 import * as _ from "lodash";
 import dispatch from "./dispatch";
-import presentLevel from "./PresentLevel";
+import loadLevel from "./level";
 
 export default function reducer(state: State, action: Action): State {
-  if (action.type === Actions.KEYBOARD) {
-    if (
-      action.key === "space" &&
-      action.direction === "down" &&
-      state.gameState === GameState.MENU
-    ) {
-      presentLevel(1);
-    }
-  }
-
   return {
     ...state,
     player: playerReducer(state.player, state, action),
@@ -30,7 +29,6 @@ export default function reducer(state: State, action: Action): State {
     gameState: gameStateReducer(state.gameState, state, action),
     zombiesKilled: zombiesKilledReducer(state.zombiesKilled, state, action),
     itemsStolen: itemsStolenReducer(state.itemsStolen, state, action),
-    livesRemaining: livesRemainingReducer(state.livesRemaining, state, action),
     paused: pausedReducer(state.paused, state, action)
   };
 }
@@ -44,16 +42,16 @@ function pausedReducer(paused: boolean, state: State, action) {
   return paused;
 }
 
-function livesRemainingReducer(livesRemaining: number, state: State, action) {
-  // functional way: check state.itemStolen and state.player.health on a timestep.
-  // don't use Actions.LIFE_LOST.
-  if (action.type === Actions.LIFE_LOST) {
-    console.log("reloading level!");
-    presentLevel(state.level.number);
-    return livesRemaining - 1;
-  }
-  return livesRemaining;
-}
+// function livesRemainingReducer(livesRemaining: number, state: State, action) {
+//   // functional way: check state.itemStolen and state.player.health on a timestep.
+//   // don't use Actions.LIFE_LOST.
+//   if (action.type === Actions.LIFE_LOST) {
+//     console.log("reloading level!");
+//     // presentLevel(state.level.number);
+//     return livesRemaining - 1;
+//   }
+//   return livesRemaining;
+// }
 
 function itemsStolenReducer(itemsStolen: number, state: State, action) {
   if (action.type === Actions.LOAD_LEVEL) {
@@ -68,7 +66,11 @@ function itemsStolenReducer(itemsStolen: number, state: State, action) {
   return itemsStolen;
 }
 
-function zombiesKilledReducer(zombiesKilled: number, state: State, action: Action): number {
+function zombiesKilledReducer(
+  zombiesKilled: number,
+  state: State,
+  action: Action
+): number {
   if (action.type === Actions.LOAD_LEVEL) {
     return 0;
   } else if (action.type === Actions.ZOMBIE_KILLED) {
@@ -77,21 +79,57 @@ function zombiesKilledReducer(zombiesKilled: number, state: State, action: Actio
   return zombiesKilled;
 }
 
-function gameStateReducer(gameState: GameState, state: State, action: Action): GameState {
-  if (action.type === Actions.TRANSITION_GAME_STATE) {
-    return action.gameState;
+function gameStateReducer(
+  gameState: GameState,
+  state: State,
+  action: Action
+): GameState {
+  if (action.type === Actions.KEYBOARD) {
+    if (action.key === "space" && action.direction === "up") {
+      if (gameState.type === GameStateType.MENU) {
+        return { ...gameState, type: GameStateType.LEVELINTRO };
+      }
+    }
+  } else if (action.type === Actions.TIMESTEP) {
+    if (gameState.type === GameStateType.LEVELINTRO) {
+      if (gameState.timeSinceIntro >= 3) {
+        return { ...gameState, type: GameStateType.GAME };
+      } else {
+        return {
+          ...gameState,
+          timeSinceIntro: gameState.timeSinceIntro + action.delta
+        };
+      }
+    } else if (gameState.type === GameStateType.GAME) {
+      // if the player beats the level, go to the intro
+      // if the player loses the level, go to the intro
+    }
   }
   return gameState;
 }
 
 function levelReducer(level: Level, state: State, action: Action): Level {
-  if (action.type === Actions.LOAD_LEVEL) {
-    return action.level;
+  if (action.type === Actions.TIMESTEP) {
+    if (state.gameState.type === GameStateType.LEVELINTRO) {
+      const levelToLoad = !state.level
+        ? 1
+        : state.zombiesKilled === state.level.zombiesToKill
+          ? state.level.number + 1
+          : state.player.health <= 0 && state.player.livesRemaining > 0
+            ? state.level.number
+            : 1;
+
+      return loadLevel(levelToLoad);
+    }
   }
   return level;
 }
 
-function itemsReducer(items: Array<Item>, state: State, action: Action): Array<Item> {
+function itemsReducer(
+  items: Array<Item>,
+  state: State,
+  action: Action
+): Array<Item> {
   if (action.type === Actions.LOAD_LEVEL) {
     return action.level.itemStartPositions.map(p => {
       return { position: p, carrier: null, carrierId: null };
@@ -104,7 +142,10 @@ function itemsReducer(items: Array<Item>, state: State, action: Action): Array<I
     });
   } else if (action.type === Actions.ITEM_DROPPED) {
     return items.map((item, i) => {
-      if (item.carrier === action.carrier && item.carrierId === action.carrierId) {
+      if (
+        item.carrier === action.carrier &&
+        item.carrierId === action.carrierId
+      ) {
         return { ...item, carrier: null, carrierId: null };
       }
       return item;
@@ -123,7 +164,11 @@ function itemsReducer(items: Array<Item>, state: State, action: Action): Array<I
     });
   } else if (action.type === Actions.ITEM_STOLEN) {
     return _.filter(items, item => {
-      return item.carrierId === null ? true : item.carrierId === action.zombieId ? false : true;
+      return item.carrierId === null
+        ? true
+        : item.carrierId === action.zombieId
+          ? false
+          : true;
     });
   }
 
@@ -156,7 +201,11 @@ function mousePressedReducer(mousePressed: boolean, state, action): boolean {
   return mousePressed;
 }
 
-function mousePositionReducer(mousePosition: Position, state, action): Position {
+function mousePositionReducer(
+  mousePosition: Position,
+  state,
+  action
+): Position {
   if (action.type == Actions.MOUSE_MOVE) {
     return action.position;
   }

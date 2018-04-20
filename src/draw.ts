@@ -8,7 +8,7 @@ import {
   Item,
   Tile,
   TileType,
-  GameState,
+  GameStateType,
   Bullet
 } from "./types";
 
@@ -41,7 +41,14 @@ function drawPlayer(ctx, player: Player) {
     COLORS["player"]
   );
 
-  drawHealth(ctx, player.position.x, player.position.y - 20, WIDTH["player"], 10, player.health);
+  drawHealth(
+    ctx,
+    player.position.x,
+    player.position.y - 20,
+    WIDTH["player"],
+    10,
+    player.health
+  );
 
   if (!player.carryingItem) {
     drawAngledRect(
@@ -58,20 +65,48 @@ function drawPlayer(ctx, player: Player) {
 
 function drawItems(ctx, items: Array<Item>) {
   for (var i of items) {
-    drawRect(ctx, i.position.x, i.position.y, WIDTH["item"], HEIGHT["item"], COLORS["item"]);
+    drawRect(
+      ctx,
+      i.position.x,
+      i.position.y,
+      WIDTH["item"],
+      HEIGHT["item"],
+      COLORS["item"]
+    );
   }
 }
 
 function drawBullets(ctx, bullets: Array<Bullet>) {
   for (var b of bullets) {
-    drawRect(ctx, b.position.x, b.position.y, WIDTH["bullet"], HEIGHT["bullet"], COLORS["bullet"]);
+    drawRect(
+      ctx,
+      b.position.x,
+      b.position.y,
+      WIDTH["bullet"],
+      HEIGHT["bullet"],
+      COLORS["bullet"]
+    );
   }
 }
 
 function drawZombies(ctx, zombies: Zombies) {
   for (var z of zombies.zombies) {
-    drawRect(ctx, z.position.x, z.position.y, WIDTH["zombie"], HEIGHT["zombie"], COLORS["zombie"]);
-    drawHealth(ctx, z.position.x, z.position.y - 20, WIDTH["zombie"], 10, z.health);
+    drawRect(
+      ctx,
+      z.position.x,
+      z.position.y,
+      WIDTH["zombie"],
+      HEIGHT["zombie"],
+      COLORS["zombie"]
+    );
+    drawHealth(
+      ctx,
+      z.position.x,
+      z.position.y - 20,
+      WIDTH["zombie"],
+      10,
+      z.health
+    );
   }
 }
 
@@ -129,10 +164,10 @@ function drawCrosshair(ctx, mousePosition: Position) {
   drawRect(ctx, mousePosition.x, mousePosition.y, 8, 8, "orange");
 }
 
-export function draw(ctx, state: State) {
+export function draw(ctx, state: State, fps) {
   ctx.clearRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 
-  if (state.gameState === GameState.GAME) {
+  if (state.gameState.type === GameStateType.GAME) {
     const drawState = setCameraPosition(state.player.position, state);
     drawState.level.tiles.forEach(tile => drawTile(ctx, tile));
     drawCrosshair(ctx, drawState.mousePosition);
@@ -140,12 +175,50 @@ export function draw(ctx, state: State) {
     drawZombies(ctx, drawState.zombies);
     drawBullets(ctx, drawState.bullets);
     drawItems(ctx, drawState.items);
-  } else if (state.gameState === GameState.LEVELINTRO) {
+  } else if (state.gameState.type === GameStateType.LEVELINTRO) {
     drawRect(ctx, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, "#fff");
-    ctx.font = "48px serif";
-    ctx.fillStyle = "#000";
-    ctx.fillText(`Level ${state.level.number}`, 10, 50);
-  } else if (state.gameState === GameState.MENU) {
+    console.log("drawing level intro");
+  } else if (state.gameState.type === GameStateType.MENU) {
     console.log("drawing menu!");
+  }
+
+  ctx.font = "14px serif";
+  ctx.fillStyle = "#000";
+  ctx.fillText(`FPS: ${fps}`, 10, 20);
+  drawItemsStolen(ctx, state);
+  drawZombiesKilled(ctx, state);
+  drawLivesRemaining(ctx, state);
+  drawLevelNum(ctx, state);
+}
+
+function drawLevelNum(ctx, state) {
+  if (state.level && state.gameState.type !== GameStateType.MENU) {
+    ctx.fillText(`Level ${state.level.number}`, 10, 100);
+  }
+}
+
+function drawItemsStolen(ctx, state) {
+  if (state.level && state.gameState.type !== GameStateType.MENU) {
+    ctx.fillText(
+      `Items Stolen: ${state.itemsStolen} / ${state.level.itemsAvailable}`,
+      10,
+      40
+    );
+  }
+}
+
+function drawZombiesKilled(ctx, state) {
+  if (state.level && state.gameState.type !== GameStateType.MENU) {
+    ctx.fillText(
+      `Zombies Killed: ${state.zombiesKilled} / ${state.level.zombiesToKill}`,
+      10,
+      60
+    );
+  }
+}
+
+function drawLivesRemaining(ctx, state) {
+  if (state.gameState.type !== GameStateType.MENU) {
+    ctx.fillText(`Lives Remaining: ${state.player.livesRemaining}`, 10, 80);
   }
 }

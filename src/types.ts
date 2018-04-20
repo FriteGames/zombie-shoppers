@@ -8,6 +8,7 @@ export type Player = {
   health: number;
   carryingItem: boolean;
   weapon: Weapon;
+  livesRemaining: number;
 };
 
 export type Item = {
@@ -51,11 +52,16 @@ export type Rect = {
   height: number;
 };
 
-export enum GameState {
+export enum GameStateType {
   MENU,
   LEVELINTRO,
   GAME
 }
+
+export type GameState = {
+  type: GameStateType;
+  timeSinceIntro: number;
+};
 
 export type State = {
   player: Player;
@@ -69,7 +75,6 @@ export type State = {
   gameState: GameState;
   itemsStolen: number;
   zombiesKilled: number;
-  livesRemaining: number;
   paused: boolean;
 };
 
