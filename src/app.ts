@@ -197,4 +197,4 @@ function checkCollisions(state: State) {
       break;
     }
   }
-
+}

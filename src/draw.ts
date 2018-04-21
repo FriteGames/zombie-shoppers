@@ -165,21 +165,22 @@ function drawCrosshair(ctx, mousePosition: Position) {
 }
 
 export function draw(ctx, state: State) {
-  let drawState = setCameraPosition(state.player.position, state);
   ctx.clearRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 
-  drawState.level.tiles.forEach(tile => drawTile(ctx, tile));
-
-  drawCrosshair(ctx, drawState.mousePosition);
-  drawPlayer(ctx, drawState.player);
-  drawZombies(ctx, drawState.zombies);
-  drawBullets(ctx, drawState.bullets);
-  drawItems(ctx, drawState.items);
-
-  if (state.gameState === GameState.LEVELINTRO) {
+  if (state.gameState === GameState.GAME) {
+    const drawState = setCameraPosition(state.player.position, state);
+    drawState.level.tiles.forEach(tile => drawTile(ctx, tile));
+    drawCrosshair(ctx, drawState.mousePosition);
+    drawPlayer(ctx, drawState.player);
+    drawZombies(ctx, drawState.zombies);
+    drawBullets(ctx, drawState.bullets);
+    drawItems(ctx, drawState.items);
+  } else if (state.gameState === GameState.LEVELINTRO) {
     drawRect(ctx, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, "#fff");
     ctx.font = "48px serif";
     ctx.fillStyle = "#000";
     ctx.fillText(`Level ${state.level.number}`, 10, 50);
+  } else if (state.gameState === GameState.MENU) {
+    console.log("drawing menu!");
   }
 }

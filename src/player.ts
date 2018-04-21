@@ -32,7 +32,7 @@ export function playerReducer(
       carryingItem: false,
       itemCarryingId: null
     };
-  } else if (action.type === Actions.KEYBOARD) {
+  } else if (action.type === Actions.KEYBOARD && !state.paused) {
     if (action.key === "space" && action.direction === "down") {
       const dropItem = player.carryingItem ? true : false;
       const pickupItem: Item = _.find(state.items, item => {

@@ -16,6 +16,16 @@ import loadLevel from "./level";
 import { dirname } from "path";
 
 export default function reducer(state: State, action: Action): State {
+  if (action.type === Actions.KEYBOARD) {
+    if (
+      action.key === "space" &&
+      action.direction === "down" &&
+      state.gameState === GameState.MENU
+    ) {
+      presentLevel(1);
+    }
+  }
+
   return {
     ...state,
     player: playerReducer(state.player, state, action),
@@ -44,6 +54,8 @@ function pausedReducer(paused: boolean, state: State, action) {
 }
 
 function livesRemainingReducer(livesRemaining: number, state: State, action) {
+  // functional way: check state.itemStolen and state.player.health on a timestep.
+  // don't use Actions.LIFE_LOST.
   if (action.type === Actions.LIFE_LOST) {
     return livesRemaining - 1;
   }

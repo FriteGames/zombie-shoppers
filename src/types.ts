@@ -54,6 +54,7 @@ export type Rect = {
 };
 
 export enum GameState {
+  MENU,
   LEVELINTRO,
   GAME
 }

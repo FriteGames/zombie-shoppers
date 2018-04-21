@@ -1,8 +1,9 @@
 import dispatch from "./dispatch";
-import { Actions } from "./types";
+import { Actions, GameState } from "./types";
 import loadLevel from "./level";
 
 export default function presentLevel(levelNum: number) {
+  dispatch({ type: Actions.TRANSITION_GAME_STATE, gameState: GameState.GAME });
   dispatch({ type: Actions.LOAD_LEVEL, level: loadLevel(levelNum) });
   // dispatch({ type: Actions.TRANSITION_GAME_STATE, gameState: GameState.LEVELINTRO });
   // setTimeout(() => {
