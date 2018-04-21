@@ -83,9 +83,9 @@ function gameLoop(timestamp) {
   checkCollisions(state);
   if (state.gameState === GameState.GAME && !state.paused) {
     dispatch({ type: Actions.TIMESTEP, delta });
+    eventListener.listen();
   }
 
-  eventListener.listen();
   // if (state.zombiesKilled === state.level.zombiesToKill) {
   //   console.log("you've killed all the zombies! go to next level");
   //   presentLevel(state.level.number + 1);

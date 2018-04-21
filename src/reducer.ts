@@ -13,6 +13,7 @@ import { bulletReducer } from "./bullets";
 import * as _ from "lodash";
 import presentLevel from "./PresentLevel";
 import loadLevel from "./level";
+import { dirname } from "path";
 
 export default function reducer(state: State, action: Action): State {
   return {
@@ -96,16 +97,21 @@ function itemsReducer(
 ): Array<Item> {
   if (action.type === Actions.LOAD_LEVEL) {
     return action.level.itemStartPositions.map(p => {
-      return { position: p, carrier: null, carrierId: null };
+      return {
+        id: _.uniqueId("item-"),
+        position: p,
+        carrier: null,
+        carrierId: null
+      };
     });
   } else if (action.type === Actions.ITEM_PICKUP) {
-    return items.map((item, i) => {
-      return i === action.itemId
+    return items.map(item => {
+      return item.id === action.itemId
         ? { ...item, carrier: action.carrier, carrierId: action.carrierId }
         : item;
     });
   } else if (action.type === Actions.ITEM_DROPPED) {
-    return items.map((item, i) => {
+    return items.map(item => {
       if (
         item.carrier === action.carrier &&
         item.carrierId === action.carrierId
@@ -114,6 +120,12 @@ function itemsReducer(
       }
       return item;
     });
+  } else if (action.type === Actions.KEYBOARD) {
+    if (action.key === "space" && action.direction === "down") {
+      return items.map(item => {
+        return item.carrier === "player" ? { ...item, carrier: null } : item;
+      });
+    }
   } else if (action.type === Actions.TIMESTEP) {
     return items.map(item => {
       return {
