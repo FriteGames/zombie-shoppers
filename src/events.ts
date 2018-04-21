@@ -51,6 +51,16 @@ const events = [
     if (state.player.health <= 0) {
       return { type: Actions.LOAD_LEVEL, level: loadLevel(state.level.number) };
     }
+  },
+  (state: State) => {
+    for (var z of state.zombies.zombies) {
+      if (z.health <= 0) {
+        return {
+          type: Actions.ZOMBIE_KILLED,
+          zombieId: z.id
+        };
+      }
+    }
   }
 ];
 

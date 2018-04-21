@@ -171,6 +171,7 @@ export type ItemStolenAction = {
 
 export type ZombieKilledAction = {
   type: Actions.ZOMBIE_KILLED;
+  zombieId: string;
 };
 
 export type Action =

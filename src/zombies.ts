@@ -1,7 +1,15 @@
-import { Zombies, Zombie, Position, Actions, Action, State, Player, Item } from "./types";
+import {
+  Zombies,
+  Zombie,
+  Position,
+  Actions,
+  Action,
+  State,
+  Player,
+  Item
+} from "./types";
 import { distance } from "./utils";
 import * as _ from "lodash";
-import dispatch from "./dispatch";
 import { SCREEN_WIDTH } from "./config";
 
 function spawn(): Zombie {
@@ -35,7 +43,11 @@ function zombiePosition(
   };
 }
 
-function closestTarget(zombie: Zombie, items: Array<Item>, player: Player): Position {
+function closestTarget(
+  zombie: Zombie,
+  items: Array<Item>,
+  player: Player
+): Position {
   const distPlayer = distance(zombie.position, player.position);
 
   const availableItems = items.filter(item => {
@@ -51,7 +63,11 @@ function closestTarget(zombie: Zombie, items: Array<Item>, player: Player): Posi
   return player.position;
 }
 
-export const zombieReducer = function(zombies: Zombies, state: State, action: Action): Zombies {
+export const zombieReducer = function(
+  zombies: Zombies,
+  state: State,
+  action: Action
+): Zombies {
   if (action.type === Actions.LOAD_LEVEL) {
     return {
       ...zombies,
@@ -87,36 +103,30 @@ export const zombieReducer = function(zombies: Zombies, state: State, action: Ac
     };
   } else if (action.type === Actions.COLLISION) {
     if (action.collided === "ZOMBIE_BULLET") {
-      const aliveZombies = zombies.zombies
-        .map((zombie, i) => {
-          return i === action.data.zombie ? { ...zombie, health: zombie.health - 50 } : zombie;
-        })
-        .filter(zombie => {
-          if (zombie.health <= 0) {
-            dispatch({
-              type: Actions.ITEM_DROPPED,
-              carrier: "zombie",
-              carrierId: zombie.id
-            });
-            dispatch({
-              type: Actions.ZOMBIE_KILLED
-            });
-            return false;
-          }
-          return true;
-        });
-
       return {
         ...zombies,
-        zombies: aliveZombies
+        zombies: zombies.zombies.map((zombie, i) => {
+          return i === action.data.zombie
+            ? { ...zombie, health: zombie.health - 50 }
+            : zombie;
+        })
       };
     }
+  } else if (action.type === Actions.ZOMBIE_KILLED) {
+    return {
+      ...zombies,
+      zombies: zombies.zombies.filter(zombie => {
+        return zombie.id === action.zombieId ? false : true;
+      })
+    };
   } else if (action.type === Actions.ITEM_PICKUP) {
     if (action.carrier === "zombie") {
       return {
         ...zombies,
         zombies: zombies.zombies.map(zombie => {
-          return zombie.id === action.carrierId ? { ...zombie, carryingItem: true } : zombie;
+          return zombie.id === action.carrierId
+            ? { ...zombie, carryingItem: true }
+            : zombie;
         })
       };
     }

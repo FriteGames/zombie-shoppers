@@ -110,15 +110,11 @@ function itemsReducer(
         ? { ...item, carrier: action.carrier, carrierId: action.carrierId }
         : item;
     });
-  } else if (action.type === Actions.ITEM_DROPPED) {
+  } else if (action.type === Actions.ZOMBIE_KILLED) {
     return items.map(item => {
-      if (
-        item.carrier === action.carrier &&
-        item.carrierId === action.carrierId
-      ) {
-        return { ...item, carrier: null, carrierId: null };
-      }
-      return item;
+      return item.carrier === "zombie" && item.carrierId === action.zombieId
+        ? { ...item, carrier: null, carrierId: null }
+        : item;
     });
   } else if (action.type === Actions.KEYBOARD) {
     if (action.key === "space" && action.direction === "down") {
