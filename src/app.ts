@@ -64,13 +64,27 @@ function init() {
 
   eventListener.register((state: State) => {
     if (state.zombiesKilled === state.level.zombiesToKill) {
-      console.log("should move to next level");
-      return [
-        true,
-        { type: Actions.LOAD_LEVEL, level: loadLevel(state.level.number + 1) }
-      ];
-    } else {
-      return [false, {}];
+      return {
+        type: Actions.LOAD_LEVEL,
+        level: loadLevel(state.level.number + 1)
+      };
+    }
+  });
+
+  eventListener.register((state: State) => {
+    if (state.itemsStolen === state.level.itemsAvailable) {
+      return {
+        type: Actions.LIFE_LOST
+      };
+    }
+  });
+
+  eventListener.register((state: State) => {
+    if (state.itemsStolen === state.level.itemsAvailable) {
+      return {
+        type: Actions.LOAD_LEVEL,
+        level: loadLevel(state.level.number)
+      };
     }
   });
 
