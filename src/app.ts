@@ -16,10 +16,11 @@ import dispatch, { getState } from "./dispatch";
 import { KeyboardAction, Actions, GameState, State } from "./types";
 import presentLevel from "./PresentLevel";
 import EventListener from "./EventListener";
+import events from "./events";
 
 let canvas;
 let ctx;
-let eventListener = new EventListener();
+let eventListener = new EventListener(events);
 
 function getMousePos(e) {
   let rect = canvas.getBoundingClientRect();
@@ -60,32 +61,6 @@ function init() {
   });
   canvas.addEventListener("mouseup", () => {
     dispatch({ type: Actions.MOUSE_CLICK, direction: "mouseup" });
-  });
-
-  eventListener.register((state: State) => {
-    if (state.zombiesKilled === state.level.zombiesToKill) {
-      return {
-        type: Actions.LOAD_LEVEL,
-        level: loadLevel(state.level.number + 1)
-      };
-    }
-  });
-
-  eventListener.register((state: State) => {
-    if (state.itemsStolen === state.level.itemsAvailable) {
-      return {
-        type: Actions.LIFE_LOST
-      };
-    }
-  });
-
-  eventListener.register((state: State) => {
-    if (state.itemsStolen === state.level.itemsAvailable) {
-      return {
-        type: Actions.LOAD_LEVEL,
-        level: loadLevel(state.level.number)
-      };
-    }
   });
 
   presentLevel(1);

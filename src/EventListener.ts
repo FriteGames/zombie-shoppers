@@ -1,28 +1,22 @@
-import { State } from "./types";
+import { State, Action } from "./types";
 import dispatch, { getState } from "./dispatch";
 
-type event = {
-  predicate: (State) => object;
-};
+type event = (State) => Action;
 
 interface EventListener {
   events: Array<event>;
 }
 
 class EventListener {
-  constructor() {
-    this.events = [];
-  }
-
-  register(predicate) {
-    this.events.push({ predicate });
+  constructor(events) {
+    this.events = events;
   }
 
   listen() {
     const state = getState();
     const queue = this.events
       .map(event => {
-        return event.predicate(state);
+        return event(state);
       })
       .filter(action => {
         return action !== undefined;
