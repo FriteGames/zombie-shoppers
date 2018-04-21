@@ -61,6 +61,13 @@ const events = [
         };
       }
     }
+  },
+  (state: State) => {
+    for (var z of state.zombies.zombies) {
+      if (z.position.y <= 1 && z.carryingItem) {
+        return { type: Actions.ITEM_STOLEN, zombieId: z.id };
+      }
+    }
   }
 ];
 

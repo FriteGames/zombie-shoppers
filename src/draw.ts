@@ -41,7 +41,14 @@ function drawPlayer(ctx, player: Player) {
     COLORS["player"]
   );
 
-  drawHealth(ctx, player.position.x, player.position.y - 20, WIDTH["player"], 10, player.health);
+  drawHealth(
+    ctx,
+    player.position.x,
+    player.position.y - 20,
+    WIDTH["player"],
+    10,
+    player.health
+  );
 
   if (!player.carryingItem) {
     drawAngledRect(
@@ -58,20 +65,48 @@ function drawPlayer(ctx, player: Player) {
 
 function drawItems(ctx, items: Array<Item>) {
   for (var i of items) {
-    drawRect(ctx, i.position.x, i.position.y, WIDTH["item"], HEIGHT["item"], COLORS["item"]);
+    drawRect(
+      ctx,
+      i.position.x,
+      i.position.y,
+      WIDTH["item"],
+      HEIGHT["item"],
+      COLORS["item"]
+    );
   }
 }
 
 function drawBullets(ctx, bullets: Array<Bullet>) {
   for (var b of bullets) {
-    drawRect(ctx, b.position.x, b.position.y, WIDTH["bullet"], HEIGHT["bullet"], COLORS["bullet"]);
+    drawRect(
+      ctx,
+      b.position.x,
+      b.position.y,
+      WIDTH["bullet"],
+      HEIGHT["bullet"],
+      COLORS["bullet"]
+    );
   }
 }
 
 function drawZombies(ctx, zombies: Zombies) {
   for (var z of zombies.zombies) {
-    drawRect(ctx, z.position.x, z.position.y, WIDTH["zombie"], HEIGHT["zombie"], COLORS["zombie"]);
-    drawHealth(ctx, z.position.x, z.position.y - 20, WIDTH["zombie"], 10, z.health);
+    drawRect(
+      ctx,
+      z.position.x,
+      z.position.y,
+      WIDTH["zombie"],
+      HEIGHT["zombie"],
+      COLORS["zombie"]
+    );
+    drawHealth(
+      ctx,
+      z.position.x,
+      z.position.y - 20,
+      WIDTH["zombie"],
+      10,
+      z.health
+    );
   }
 }
 

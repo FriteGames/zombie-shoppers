@@ -80,16 +80,11 @@ function gameLoop(timestamp) {
   const state = getState();
 
   // check for collisions right here
-  checkCollisions(state);
   if (state.gameState === GameState.GAME && !state.paused) {
     dispatch({ type: Actions.TIMESTEP, delta });
     eventListener.listen();
+    checkCollisions(state);
   }
-
-  // if (state.zombiesKilled === state.level.zombiesToKill) {
-  //   console.log("you've killed all the zombies! go to next level");
-  //   presentLevel(state.level.number + 1);
-  // }
 
   if (state.livesRemaining === 0) {
     console.log("you lose!"); // go to main menu
@@ -194,7 +189,7 @@ function checkCollisions(state: State) {
       if (overlaps(r1, r2)) {
         dispatch({
           type: Actions.ITEM_PICKUP,
-          itemId: state.items.indexOf(i),
+          itemId: i.id,
           carrier: "zombie",
           carrierId: z.id
         });
@@ -203,14 +198,3 @@ function checkCollisions(state: State) {
     }
   }
 
-  // if a zombie returns to its starting position,
-  // dispatch ZOMBIE_STOLE_ITEM with params zombie id
-  for (var z of state.zombies.zombies) {
-    if (z.position.y <= 1 && z.carryingItem) {
-      dispatch({
-        type: Actions.ITEM_STOLEN,
-        zombieId: z.id
-      });
-    }
-  }
-}

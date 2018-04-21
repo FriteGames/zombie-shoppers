@@ -1,4 +1,4 @@
-import { State, GameState } from "./types";
+import { State, GameState, Actions } from "./types";
 import reducer from "./reducer";
 import * as _ from "lodash";
 
