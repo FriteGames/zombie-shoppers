@@ -7,10 +7,12 @@ export type Player = {
   position: Position;
   health: number;
   carryingItem: boolean;
+  itemCarryingId: string;
   weapon: Weapon;
 };
 
 export type Item = {
+  id: string;
   carrier?: string; // 'zombie' or 'player'
   carrierId?: string;
   position: Position;
@@ -152,7 +154,7 @@ export type TransitionGameStateAction = {
 
 export type ItemPickupAction = {
   type: Actions.ITEM_PICKUP;
-  itemId: number;
+  itemId: string;
   carrier: string;
   carrierId?: string;
 };
@@ -170,6 +172,7 @@ export type ItemStolenAction = {
 
 export type ZombieKilledAction = {
   type: Actions.ZOMBIE_KILLED;
+  zombieId: string;
 };
 
 export type Action =

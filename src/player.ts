@@ -1,7 +1,6 @@
 import { worldCoordinates, overlaps, getRect } from "./utils";
 import { Player, Position, Action, Actions, State, Item } from "./types";
 import { WIDTH, HEIGHT } from "./config";
-import dispatch from "./dispatch";
 import * as _ from "lodash";
 
 let PLAYER_SPEED = 10;
@@ -20,47 +19,41 @@ function weaponAngle(player: Player, mousePos: Position): number {
   return Math.atan2(dx, dy) * 180 / Math.PI;
 }
 
-export function playerReducer(player: Player, state: State, action: Action): Player {
+export function playerReducer(
+  player: Player,
+  state: State,
+  action: Action
+): Player {
   if (action.type === Actions.LOAD_LEVEL) {
     return {
       ...player,
       position: action.level.playerStartPosition,
       health: 100,
-      carryingItem: false
+      carryingItem: false,
+      itemCarryingId: null
     };
   } else if (action.type === Actions.KEYBOARD && !state.paused) {
     if (action.key === "space" && action.direction === "down") {
       const dropItem = player.carryingItem ? true : false;
       const pickupItem: Item = _.find(state.items, item => {
-        return overlaps(getRect(player.position, "player"), getRect(item.position, "item")) &&
+        return overlaps(
+          getRect(player.position, "player"),
+          getRect(item.position, "item")
+        ) &&
           !player.carryingItem &&
           !item.carrier
           ? true
           : false;
       });
 
-      if (pickupItem) {
-        // functional solution to dispatch problem:
-        // set player.carryingItem and itemId
-        // on a timestep action of the item, check to see if item is what is being carried by the player
-        // set carrier on item
-        dispatch({
-          type: Actions.ITEM_PICKUP,
-          itemId: state.items.indexOf(pickupItem),
-          carrier: "player",
-          carrierId: null
-        });
-      } else if (dropItem) {
-        dispatch({
-          type: Actions.ITEM_DROPPED,
-          carrier: "player",
-          carrierId: null
-        });
-      }
-
       return {
         ...player,
-        carryingItem: dropItem ? false : pickupItem ? true : player.carryingItem
+        carryingItem: dropItem
+          ? false
+          : pickupItem
+            ? true
+            : player.carryingItem,
+        itemCarryingId: pickupItem ? pickupItem.id : player.itemCarryingId
       };
     }
   } else if (action.type === Actions.ITEM_PICKUP) {
@@ -86,10 +79,6 @@ export function playerReducer(player: Player, state: State, action: Action): Pla
       player,
       worldCoordinates(state.mousePosition, player.position)
     );
-
-    if (player.health <= 0) {
-      dispatch({ type: Actions.LIFE_LOST });
-    }
 
     return {
       ...player,
