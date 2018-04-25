@@ -14,7 +14,6 @@ import loadLevel from "./level";
 import * as _ from "lodash";
 import dispatch, { getState } from "./dispatch";
 import { KeyboardAction, Actions, State, Scene, SceneType } from "./types";
-import presentLevel from "./PresentLevel";
 import EventListener from "./EventListener";
 import events from "./events";
 
@@ -90,12 +89,16 @@ function gameLoop(timestamp) {
     if (state.keysPressed.space) {
       dispatch({ type: Actions.LOAD_LEVEL, level: loadLevel(1) });
     }
+  } else if (state.scene.kind === SceneType.GAMEOVER) {
+    if (state.keysPressed.p) {
+      dispatch({ type: Actions.TRANSITION_SCENE, to: SceneType.MENU });
+    }
   }
 
-  if (state.livesRemaining === 0) {
-    console.log("you lose!"); // go to main menu
-    return;
-  }
+  // if (state.livesRemaining === 0) {
+  //   console.log("you lose!"); // go to main menu
+  //   return;
+  // }
 
   draw(ctx, state, fps);
   window.requestAnimationFrame(gameLoop);

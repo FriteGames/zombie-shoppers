@@ -12,7 +12,6 @@ import { playerReducer } from "./player";
 import { zombieReducer } from "./zombies";
 import { bulletReducer } from "./bullets";
 import * as _ from "lodash";
-import presentLevel from "./PresentLevel";
 import loadLevel from "./level";
 import { dirname } from "path";
 
@@ -36,8 +35,10 @@ export default function reducer(state: State, action: Action): State {
 
 function pausedReducer(paused: boolean, state: State, action) {
   if (action.type === Actions.KEYBOARD) {
-    if (action.key === "p" && action.direction === "down") {
-      return !paused;
+    if (state.scene.kind === SceneType.LEVEL) {
+      if (action.key === "p" && action.direction === "down") {
+        return !paused;
+      }
     }
   }
   return paused;
@@ -106,6 +107,8 @@ function sceneReducer(scene: Scene, state: State, action) {
       console.log("setting scene to gameover");
       console.log(action);
       return { ...scene, kind: action.to, level: null };
+    } else if (action.to === SceneType.MENU) {
+      return { ...scene, kind: action.to };
     }
   }
 

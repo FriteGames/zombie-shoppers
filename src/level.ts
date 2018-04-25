@@ -4,7 +4,7 @@ const levelConfig = {
   1: {
     zombieSpawnDelay: 1, // units: seconds
     zombieSpeed: 150, // units: pixels per second,
-    zombies: 1,
+    zombies: 10,
     itemsAvailable: 3
   },
   2: {

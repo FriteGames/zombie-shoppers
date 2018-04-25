@@ -206,6 +206,12 @@ function drawLevel(ctx, state: State) {
   ctx.fillText(`Lives Remaining: ${state.livesRemaining}`, 10, 80);
 }
 
+function drawGameOver(ctx, state: State) {
+  ctx.font = "48px serif";
+  ctx.fillStyle = "#000";
+  ctx.fillText("Game Over!", 10, 50);
+}
+
 export function draw(ctx, state: State, fps) {
   ctx.clearRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
   if (state.scene.kind === SceneType.MENU) {
@@ -215,7 +221,7 @@ export function draw(ctx, state: State, fps) {
   } else if (state.scene.kind === SceneType.LEVEL) {
     drawLevel(ctx, state);
   } else if (state.scene.kind === SceneType.GAMEOVER) {
-    console.log("draw game over");
+    drawGameOver(ctx, state);
   }
 
   ctx.font = "14px serif";
