@@ -53,11 +53,17 @@ export type Rect = {
   height: number;
 };
 
-export enum GameState {
+export enum SceneType {
   MENU,
-  LEVELINTRO,
-  GAME
+  INTRO,
+  LEVEL,
+  GAMEOVER
 }
+
+export type Scene = {
+  kind: SceneType;
+  level: Level;
+};
 
 export type State = {
   player: Player;
@@ -67,8 +73,7 @@ export type State = {
   mousePosition: Position;
   mousePressed: boolean;
   keysPressed: { [key: string]: boolean };
-  level: Level;
-  gameState: GameState;
+  scene: Scene;
   itemsStolen: number;
   zombiesKilled: number;
   livesRemaining: number;
@@ -107,7 +112,7 @@ export enum Actions {
   MOUSE_MOVE,
   MOUSE_CLICK,
   COLLISION,
-  TRANSITION_GAME_STATE,
+  TRANSITION_SCENE,
   ITEM_PICKUP,
   ITEM_DROPPED,
   ITEM_STOLEN,
@@ -147,9 +152,9 @@ export type CollisionAction = {
   data: any;
 };
 
-export type TransitionGameStateAction = {
-  type: Actions.TRANSITION_GAME_STATE;
-  gameState: GameState;
+export type TransitionSceneAction = {
+  type: Actions.TRANSITION_SCENE;
+  to: SceneType;
 };
 
 export type ItemPickupAction = {
@@ -182,7 +187,7 @@ export type Action =
   | MouseMoveAction
   | MouseClickAction
   | CollisionAction
-  | TransitionGameStateAction
+  | TransitionSceneAction
   | ItemPickupAction
   | ItemDroppedAction
   | ItemStolenAction

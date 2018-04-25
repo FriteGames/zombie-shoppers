@@ -74,7 +74,7 @@ export const zombieReducer = function(
       zombies: []
     };
   } else if (action.type === Actions.TIMESTEP) {
-    const shouldSpawn = zombies.lastSpawn > state.level.zombieSpawnDelay;
+    const shouldSpawn = zombies.lastSpawn > state.scene.level.zombieSpawnDelay;
     const lastSpawn = shouldSpawn ? 0 : zombies.lastSpawn + action.delta;
     let spawnedZombies: Array<Zombie> = [...zombies.zombies];
 
@@ -90,7 +90,7 @@ export const zombieReducer = function(
       const position = zombiePosition(
         zombie.position,
         destPos,
-        state.level.zombieSpeed,
+        state.scene.level.zombieSpeed,
         action.delta
       );
 

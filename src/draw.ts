@@ -8,8 +8,9 @@ import {
   Item,
   Tile,
   TileType,
-  GameState,
-  Bullet
+  Bullet,
+  Scene,
+  SceneType
 } from "./types";
 
 function drawRect(ctx, x, y, width, height, color) {
@@ -126,7 +127,7 @@ function setCameraPosition(position: Position, state: State): State {
   const items = state.items.map(item => {
     return shiftPos(item, shift_x, shift_y);
   });
-  const tiles = [...state.level.tiles].map(tile => {
+  const tiles = [...state.scene.level.tiles].map(tile => {
     return shiftPos(tile, shift_x, shift_y);
   });
   const bullets = [...state.bullets].map(bullet => {
@@ -142,9 +143,9 @@ function setCameraPosition(position: Position, state: State): State {
     zombies: { ...state.zombies, zombies },
     player,
     items,
-    level: {
-      ...state.level,
-      tiles
+    scene: {
+      ...state.scene,
+      level: { ...state.scene.level, tiles }
     }
   };
 }
@@ -164,23 +165,62 @@ function drawCrosshair(ctx, mousePosition: Position) {
   drawRect(ctx, mousePosition.x, mousePosition.y, 8, 8, "orange");
 }
 
-export function draw(ctx, state: State) {
-  ctx.clearRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
-
-  if (state.gameState === GameState.GAME) {
-    const drawState = setCameraPosition(state.player.position, state);
-    drawState.level.tiles.forEach(tile => drawTile(ctx, tile));
-    drawCrosshair(ctx, drawState.mousePosition);
-    drawPlayer(ctx, drawState.player);
-    drawZombies(ctx, drawState.zombies);
-    drawBullets(ctx, drawState.bullets);
-    drawItems(ctx, drawState.items);
-  } else if (state.gameState === GameState.LEVELINTRO) {
-    drawRect(ctx, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, "#fff");
-    ctx.font = "48px serif";
-    ctx.fillStyle = "#000";
-    ctx.fillText(`Level ${state.level.number}`, 10, 50);
-  } else if (state.gameState === GameState.MENU) {
-    console.log("drawing menu!");
-  }
+function drawMenu(ctx, state: State) {
+  ctx.font = "32px Helvetica";
+  ctx.fillStyle = "#000";
+  ctx.fillText("Menu", 100, 100);
+  ctx.font = "14px Helvetica";
+  ctx.fillText("Press space to start", 100, 120);
 }
+
+function drawIntro(ctx, state: State) {
+  drawRect(ctx, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, "#fff");
+  ctx.font = "48px serif";
+  ctx.fillStyle = "#000";
+  ctx.fillText(`Level ${state.scene.level.number}`, 10, 50);
+  ctx.fillText("intro!", 100, 100);
+}
+
+function drawLevel(ctx, state: State) {
+  const drawState = setCameraPosition(state.player.position, state);
+  drawState.scene.level.tiles.forEach(tile => drawTile(ctx, tile));
+  drawCrosshair(ctx, drawState.mousePosition);
+  drawPlayer(ctx, drawState.player);
+  drawZombies(ctx, drawState.zombies);
+  drawBullets(ctx, drawState.bullets);
+  drawItems(ctx, drawState.items);
+  ctx.font = "14px serif";
+  ctx.fillStyle = "#000";
+  ctx.fillText(
+    `Items Stolen: ${state.itemsStolen} / ${state.scene.level.itemsAvailable}`,
+    10,
+    40
+  );
+  ctx.fillText(
+    `Zombies Killed: ${state.zombiesKilled} / ${
+      state.scene.level.zombiesToKill
+    }`,
+    10,
+    60
+  );
+  ctx.fillText(`Lives Remaining: ${state.livesRemaining}`, 10, 80);
+}
+
+export function draw(ctx, state: State, fps) {
+  ctx.clearRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+  if (state.scene.kind === SceneType.MENU) {
+    drawMenu(ctx, state);
+  } else if (state.scene.kind === SceneType.INTRO) {
+    drawIntro(ctx, state);
+  } else if (state.scene.kind === SceneType.LEVEL) {
+    drawLevel(ctx, state);
+  } else if (state.scene.kind === SceneType.GAMEOVER) {
+    console.log("draw game over");
+  }
+
+  ctx.font = "14px serif";
+  ctx.fillStyle = "#000";
+  ctx.fillText(`FPS: ${fps}`, 10, SCREEN_HEIGHT - 10);
+}
+
+function drawMetrics(ctx, metrics) {}

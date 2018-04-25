@@ -13,7 +13,7 @@ import { overlaps, getRect } from "./utils";
 import loadLevel from "./level";
 import * as _ from "lodash";
 import dispatch, { getState } from "./dispatch";
-import { KeyboardAction, Actions, GameState, State } from "./types";
+import { KeyboardAction, Actions, State, Scene, SceneType } from "./types";
 import presentLevel from "./PresentLevel";
 import EventListener from "./EventListener";
 import events from "./events";
@@ -63,7 +63,6 @@ function init() {
     dispatch({ type: Actions.MOUSE_CLICK, direction: "mouseup" });
   });
 
-  presentLevel(1);
   gameLoop(0);
 }
 
@@ -80,10 +79,17 @@ function gameLoop(timestamp) {
   const state = getState();
 
   // check for collisions right here
-  if (state.gameState === GameState.GAME && !state.paused) {
+
+  if (state.scene.kind === SceneType.LEVEL && !state.paused) {
     dispatch({ type: Actions.TIMESTEP, delta });
     eventListener.listen();
     checkCollisions(state);
+  } else if (state.scene.kind === SceneType.MENU) {
+    // TODO: figure out a way to turn this into an event to listen to
+    // problem: there are only events that should be listened for when sceneType is level
+    if (state.keysPressed.space) {
+      dispatch({ type: Actions.LOAD_LEVEL, level: loadLevel(1) });
+    }
   }
 
   if (state.livesRemaining === 0) {
@@ -91,22 +97,7 @@ function gameLoop(timestamp) {
     return;
   }
 
-  draw(ctx, state);
-  ctx.font = "14px serif";
-  ctx.fillStyle = "#000";
-  ctx.fillText(`FPS: ${fps}`, 10, 20);
-  ctx.fillText(
-    `Items Stolen: ${state.itemsStolen} / ${state.level.itemsAvailable}`,
-    10,
-    40
-  );
-  ctx.fillText(
-    `Zombies Killed: ${state.zombiesKilled} / ${state.level.zombiesToKill}`,
-    10,
-    60
-  );
-  ctx.fillText(`Lives Remaining: ${state.livesRemaining}`, 10, 80);
-
+  draw(ctx, state, fps);
   window.requestAnimationFrame(gameLoop);
   previousTimestamp = timestamp;
 }

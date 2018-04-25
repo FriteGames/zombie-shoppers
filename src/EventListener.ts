@@ -1,4 +1,4 @@
-import { State, Action } from "./types";
+import { State, Action, Actions } from "./types";
 import dispatch, { getState } from "./dispatch";
 
 type event = (State) => Action;
@@ -23,7 +23,9 @@ class EventListener {
       });
 
     if (queue.length) {
+      console.log(`there are ${queue.length} items in the queue`);
       queue.forEach(action => {
+        console.log(`dispatching: ${Actions[action.type]}`);
         dispatch(action);
       });
 

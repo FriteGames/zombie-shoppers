@@ -2,10 +2,11 @@ import {
   State,
   Action,
   Actions,
-  GameState,
+  Scene,
   Level,
   Item,
-  Position
+  Position,
+  SceneType
 } from "./types";
 import { playerReducer } from "./player";
 import { zombieReducer } from "./zombies";
@@ -16,16 +17,6 @@ import loadLevel from "./level";
 import { dirname } from "path";
 
 export default function reducer(state: State, action: Action): State {
-  if (action.type === Actions.KEYBOARD) {
-    if (
-      action.key === "space" &&
-      action.direction === "down" &&
-      state.gameState === GameState.MENU
-    ) {
-      presentLevel(1);
-    }
-  }
-
   return {
     ...state,
     player: playerReducer(state.player, state, action),
@@ -35,8 +26,7 @@ export default function reducer(state: State, action: Action): State {
     zombies: zombieReducer(state.zombies, state, action),
     bullets: bulletReducer(state.bullets, state, action),
     items: itemsReducer(state.items, state, action),
-    level: levelReducer(state.level, state, action),
-    gameState: gameStateReducer(state.gameState, state, action),
+    scene: sceneReducer(state.scene, state, action),
     zombiesKilled: zombiesKilledReducer(state.zombiesKilled, state, action),
     itemsStolen: itemsStolenReducer(state.itemsStolen, state, action),
     livesRemaining: livesRemainingReducer(state.livesRemaining, state, action),
@@ -54,8 +44,6 @@ function pausedReducer(paused: boolean, state: State, action) {
 }
 
 function livesRemainingReducer(livesRemaining: number, state: State, action) {
-  // functional way: check state.itemStolen and state.player.health on a timestep.
-  // don't use Actions.LIFE_LOST.
   if (action.type === Actions.LIFE_LOST) {
     return livesRemaining - 1;
   }
@@ -84,23 +72,60 @@ function zombiesKilledReducer(
   return zombiesKilled;
 }
 
-function gameStateReducer(
-  gameState: GameState,
-  state: State,
-  action: Action
-): GameState {
-  if (action.type === Actions.TRANSITION_GAME_STATE) {
-    return action.gameState;
+// TODO: have a watcher for this and trigger load level
+// function sceneReducer(scene: Scene, state: State, action: Action): Scene {
+//   if (action.type === Actions.KEYBOARD) {
+//     if (action.key === "space" && action.direction === "down") {
+//       return scene === Scene.MENU
+//         ? Scene.INTRO
+//         : Scene.INTRO
+//           ? Scene.LEVEL
+//           : scene;
+//     }
+//   } else if (action.type === Actions.TRANSITION_GAME_STATE) {
+//     return action.scene;
+//   }
+//   return scene;
+// }
+
+function sceneReducer(scene: Scene, state: State, action) {
+  if (action.type === Actions.LOAD_LEVEL) {
+    return {
+      ...scene,
+      level: action.level,
+      kind: SceneType.INTRO
+    };
+  } else if (action.type === Actions.KEYBOARD) {
+    if (action.key === "space" && action.direction === "down") {
+      if (scene.kind === SceneType.INTRO) {
+        return { ...scene, kind: SceneType.LEVEL };
+      }
+    }
+  } else if (action.type === Actions.TRANSITION_SCENE) {
+    if (action.to === SceneType.GAMEOVER) {
+      console.log("setting scene to gameover");
+      console.log(action);
+      return { ...scene, kind: action.to, level: null };
+    }
   }
-  return gameState;
+
+  return scene;
+
+  // TODO: why do i need this?
+  // } else if (action.type === Actions.TRANSITION_GAME_STATE) {
+  //   // rename action to TRANSITION_SCENE
+  //   const level = actions.scene === "MENU" ? null : scene.level;
+  //   return { ...scene, type: action.scene, level: level };
+  // }
 }
 
-function levelReducer(level: Level, state: State, action: Action): Level {
-  if (action.type === Actions.LOAD_LEVEL) {
-    return action.level;
-  }
-  return level;
-}
+// function levelReducer(level: Level, state: State, action: Action): Level {
+//   if (action.type === Actions.LOAD_LEVEL) {
+//     console.log("load level called!");
+//     return action.level;
+//   }
+//   return level;
+// }
 
 function itemsReducer(
   items: Array<Item>,
