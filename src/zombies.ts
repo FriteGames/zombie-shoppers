@@ -105,9 +105,9 @@ export const zombieReducer = function(
     if (action.collided === "ZOMBIE_BULLET") {
       return {
         ...zombies,
-        zombies: zombies.zombies.map((zombie, i) => {
-          return i === action.data.zombie
-            ? { ...zombie, health: zombie.health - 50 }
+        zombies: zombies.zombies.map(zombie => {
+          return zombie.id === action.data.zombie
+            ? { ...zombie, health: zombie.health - 20 }
             : zombie;
         })
       };

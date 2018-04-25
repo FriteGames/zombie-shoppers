@@ -130,7 +130,7 @@ function checkCollisions(state: State) {
           type: Actions.COLLISION,
           collided: "ZOMBIE_BULLET",
           data: {
-            zombie: state.zombies.zombies.indexOf(z),
+            zombie: z.id,
             bullet: state.bullets.indexOf(b)
           }
         });
