@@ -16,10 +16,18 @@ function bulletPosition(bullet: Bullet, delta: number): Position {
 }
 
 function spawnBullet(playerPosition: Position, weaponAngle: number): Bullet {
-  return { position: playerPosition, damage: BULLET_DAMAGE, angle: weaponAngle };
+  return {
+    position: playerPosition,
+    damage: BULLET_DAMAGE,
+    angle: weaponAngle
+  };
 }
 
-export function bulletReducer(bullets: Array<Bullet>, state: State, action: Action): Array<Bullet> {
+export function bulletReducer(
+  bullets: Array<Bullet>,
+  state: State,
+  action: Action
+): Array<Bullet> {
   if (action.type === Actions.LOAD_LEVEL) {
     return [];
   } else if (action.type === Actions.TIMESTEP) {
@@ -31,7 +39,9 @@ export function bulletReducer(bullets: Array<Bullet>, state: State, action: Acti
     });
 
     if (state.mousePressed && !state.player.carryingItem) {
-      bulletsFired.push(spawnBullet(state.player.position, state.player.weapon.angle));
+      bulletsFired.push(
+        spawnBullet(state.player.position, state.player.weapon.angle)
+      );
     }
 
     return bulletsFired;

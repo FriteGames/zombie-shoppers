@@ -19,19 +19,6 @@ const events = [
       ];
     }
   },
-  // (state: State) => {
-  //   if (state.itemsStolen === state.scene.level.itemsAvailable) {
-  //     return { type: Actions.LIFE_LOST };
-  //   }
-  // },
-  // (state: State) => {
-  //   if (state.itemsStolen === state.scene.level.itemsAvailable) {
-  //     return {
-  //       type: Actions.LOAD_LEVEL,
-  //       level: loadLevel(state.scene.level.number)
-  //     };
-  //   }
-  // },
   (state: State) => {
     if (state.player.carryingItem) {
       const item = _.find(state.items, {
@@ -50,23 +37,6 @@ const events = [
       }
     }
   },
-  // (state: State) => {
-  //   if (state.player.health <= 0) {
-  //     console.log("should dispatch life lost");
-  //     return {
-  //       type: Actions.LIFE_LOST
-  //     };
-  //   }
-  // },
-  // (state: State) => {
-  //   if (state.player.health <= 0 && state.livesRemaining) {
-  //     console.log("lives remaining: " + state.livesRemaining);
-  //     return {
-  //       type: Actions.LOAD_LEVEL,
-  //       level: loadLevel(state.scene.level.number)
-  //     };
-  //   }
-  // },
   (state: State) => {
     if (levelLost(state)) {
       if (state.livesRemaining) {
@@ -110,32 +80,3 @@ const events = [
 ];
 
 export default events;
-
-// in sceneReducer, on life lost:
-
-//     current number of lives is contained in the action payload
-
-//     if (lives left) {
-//         needs level = true
-//     } else  {
-//         needs level = false
-//     }
-
-// in events:
-
-//     if (lifeLostCondition(state)) {
-//         if (state.livesRemaining === 0) {
-//             return {type: Actions.TRANSITION_SCENE, kind: GAMEOVER}
-//         } else if {
-//             return [
-//                 {type: Actions.LIFE_LOST}
-//                 {type: Actions.LOAD_LEVEL, level: loadLevel(state.scene.level.number)}
-//             ]
-
-//         }
-//     }
-
-//     // OR
-//     if (lifeLostCondition(state) === true && state.needsLevel) {
-//         return type Actions.loadLevel(state.scene.level.number) // restart this level
-//     }
