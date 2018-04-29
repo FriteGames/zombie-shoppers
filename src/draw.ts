@@ -151,14 +151,7 @@ function setCameraPosition(position: Position, state: State): State {
 }
 
 function drawTile(ctx, tile: Tile) {
-  drawRect(
-    ctx,
-    tile.position.x,
-    tile.position.y,
-    32,
-    32,
-    tile.type === TileType.BACKGROUND ? "#666" : "green"
-  );
+  drawRect(ctx, tile.position.x, tile.position.y, 32, 32, "#666");
 }
 
 function drawCrosshair(ctx, mousePosition: Position) {
@@ -178,7 +171,7 @@ function drawIntro(ctx, state: State) {
   ctx.font = "48px serif";
   ctx.fillStyle = "#000";
   ctx.fillText(`Level ${state.scene.level.number}`, 10, 50);
-  ctx.fillText("intro!", 100, 100);
+  ctx.fillText(`${state.scene.level.zombiesToKill} zombies`, 100, 100);
 }
 
 function drawLevel(ctx, state: State) {

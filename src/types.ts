@@ -81,8 +81,7 @@ export type State = {
 };
 
 export enum TileType {
-  BACKGROUND,
-  GOAL
+  BACKGROUND
 }
 
 export type Tile = {
@@ -100,7 +99,6 @@ export type Level = {
   tiles: Array<Tile>;
   itemStartPositions: Array<Position>;
   playerStartPosition: Position;
-  goal: Rect;
   itemsAvailable: number;
   zombiesToKill: number;
 };

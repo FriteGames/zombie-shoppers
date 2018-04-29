@@ -20,7 +20,7 @@ const levels = [
   require("../levels/level2.json")
 ];
 
-export default function d(levelNum: number): Level {
+export default function loadLevel(levelNum: number): Level {
   console.log("loading level config for level " + levelNum);
   const levelJson = levels[levelNum - 1];
   const width = levelJson.width;
@@ -32,7 +32,7 @@ export default function d(levelNum: number): Level {
       y: Math.floor(index / width) * 32
     };
     const boundary = false;
-    const type = tileId === 1 ? TileType.BACKGROUND : TileType.GOAL;
+    const type = TileType.BACKGROUND;
     return { position, boundary, type };
   });
 
@@ -56,7 +56,6 @@ export default function d(levelNum: number): Level {
     { x: 600, y: 500 }
   ];
   // const itemStartPositions = [{ x: 300, y: 0 }];
-  const goal = rect(levelJson.layers[1].objects[2]);
   const conf = levelConfig[levelNum];
 
   return {
@@ -64,7 +63,6 @@ export default function d(levelNum: number): Level {
     width,
     height,
     tiles,
-    goal,
     playerStartPosition,
     itemStartPositions,
     zombieSpawnDelay: conf.zombieSpawnDelay,
