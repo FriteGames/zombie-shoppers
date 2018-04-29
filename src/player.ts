@@ -1,16 +1,29 @@
 import { worldCoordinates, overlaps, getRect } from "./utils";
 import { Player, Position, Action, Actions, State, Item } from "./types";
-import { WIDTH, HEIGHT } from "./config";
+import { WIDTH, HEIGHT, WORLD_WIDTH, WORLD_HEIGHT } from "./config";
 import * as _ from "lodash";
 
 let PLAYER_SPEED = 10;
+
+function boundVector(a, lower, upper) {
+  if (a < lower) {
+    return lower;
+  } else if (a > upper) {
+    return upper;
+  }
+  return a;
+}
 
 function playerPosition(pPos: Position, vx: number, vy: number): Position {
   const dx = vx * PLAYER_SPEED;
   const dy = vy * PLAYER_SPEED;
   const x = pPos.x + dx;
   const y = pPos.y + dy;
-  return { x, y };
+
+  return {
+    x: boundVector(x, 0, WORLD_WIDTH - WIDTH.player),
+    y: boundVector(y, 0, WORLD_HEIGHT - HEIGHT.player)
+  };
 }
 
 function weaponAngle(player: Player, mousePos: Position): number {
