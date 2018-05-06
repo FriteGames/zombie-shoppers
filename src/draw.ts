@@ -12,6 +12,31 @@ import {
   Scene,
   SceneType
 } from "./types";
+import loadImage from "./loadimage";
+import * as _ from "lodash";
+
+let images = {};
+
+export async function loadImages() {
+  const config = {
+    phone: require("../img/phone.png")
+  };
+
+  const fetchedImages = await Promise.all(
+    _.map(config, (value, key) => {
+      return loadImage(key, value);
+    })
+  );
+
+  images = _.reduce(
+    fetchedImages,
+    (accum, image) => {
+      accum[image.name] = image.img;
+      return accum;
+    },
+    {}
+  );
+}
 
 function drawRect(ctx, x, y, width, height, color) {
   ctx.fillStyle = color;
@@ -64,16 +89,9 @@ function drawPlayer(ctx, player: Player) {
   }
 }
 
-function drawItems(ctx, items: Array<Item>) {
+async function drawItems(ctx, items: Array<Item>) {
   for (var i of items) {
-    drawRect(
-      ctx,
-      i.position.x,
-      i.position.y,
-      WIDTH["item"],
-      HEIGHT["item"],
-      COLORS["item"]
-    );
+    ctx.drawImage(images.phone, i.position.x, i.position.y);
   }
 }
 

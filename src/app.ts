@@ -7,7 +7,7 @@ import {
   SCREEN_HEIGHT,
   WIDTH
 } from "./config";
-import { draw } from "./draw";
+import { draw, loadImages } from "./draw";
 import { overlaps, getRect } from "./utils";
 
 import loadLevel from "./level";
@@ -30,7 +30,9 @@ function getMousePos(e) {
   };
 }
 
-function init() {
+async function init() {
+  await loadImages();
+
   canvas = document.getElementById("canvas");
   canvas.width = SCREEN_WIDTH;
   ctx = canvas.getContext("2d");
