@@ -11,15 +11,19 @@ import {
 import { distance } from "./utils";
 import * as _ from "lodash";
 import { SCREEN_WIDTH } from "./config";
+import Animation from "./animation";
+import { getImages } from "./image";
 
 function spawn(): Zombie {
+  const images = getImages();
   const spawnPos = { x: _.random(0, SCREEN_WIDTH), y: 0 };
   return {
     id: _.uniqueId("zombie"),
     position: spawnPos,
     spawnLocation: spawnPos,
     health: 100,
-    carryingItem: false
+    carryingItem: false,
+    sprite: new Animation(images["zombieWalk"])
   };
 }
 
@@ -94,7 +98,7 @@ export const zombieReducer = function(
         action.delta
       );
 
-      return { ...zombie, position };
+      return { ...zombie, position, target: destPos };
     });
 
     return {

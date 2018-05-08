@@ -7,7 +7,7 @@ import {
   SCREEN_HEIGHT,
   WIDTH
 } from "./config";
-import { draw, loadImages } from "./draw";
+import { draw } from "./draw";
 import { overlaps, getRect } from "./utils";
 
 import loadLevel from "./level";
@@ -17,6 +17,7 @@ import { KeyboardAction, Actions, State, Scene, SceneType } from "./types";
 import EventListener from "./EventListener";
 import events from "./events";
 import checkCollisions from "./collisions";
+import { loadImages } from "./image";
 
 let canvas;
 let ctx;
@@ -100,5 +101,7 @@ function gameLoop(timestamp) {
   window.requestAnimationFrame(gameLoop);
   previousTimestamp = timestamp;
 }
-
+//
 window.onload = init;
+// window.onload = loadImages;
+//

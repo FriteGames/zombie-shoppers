@@ -14,6 +14,8 @@ import { bulletReducer } from "./bullets";
 import * as _ from "lodash";
 import loadLevel from "./level";
 import { dirname } from "path";
+import { getImages } from "./image";
+import Animation from "./animation";
 
 export default function reducer(state: State, action: Action): State {
   return {
@@ -110,7 +112,8 @@ function itemsReducer(
         id: _.uniqueId("item-"),
         position: p,
         carrier: null,
-        carrierId: null
+        carrierId: null,
+        sprite: new Animation(getImages()["phone"])
       };
     });
   } else if (action.type === Actions.ITEM_PICKUP) {

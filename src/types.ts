@@ -1,3 +1,5 @@
+import Animation from "./animation";
+
 export type Position = {
   x: number;
   y: number;
@@ -16,6 +18,7 @@ export type Item = {
   carrier?: string; // 'zombie' or 'player'
   carrierId?: string;
   position: Position;
+  sprite: Animation;
 };
 
 export type Weapon = {
@@ -28,6 +31,8 @@ export type Zombie = {
   health: number;
   carryingItem: boolean;
   spawnLocation: Position;
+  sprite: Animation;
+  target: Position;
 };
 
 export type Zombies = {
