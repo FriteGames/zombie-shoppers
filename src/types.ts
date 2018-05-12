@@ -34,6 +34,7 @@ export type Zombie = {
   sprite: Animation;
   target?: Position;
   dying: boolean;
+  attacking: boolean;
 };
 
 export type Zombies = {
@@ -116,6 +117,7 @@ export enum Actions {
   MOUSE_MOVE,
   MOUSE_CLICK,
   COLLISION,
+  COLLISION_END,
   TRANSITION_SCENE,
   ITEM_PICKUP,
   ITEM_DROPPED,
@@ -152,7 +154,7 @@ export type MouseClickAction = {
 };
 
 export type CollisionAction = {
-  type: Actions.COLLISION;
+  type: Actions.COLLISION | Actions.COLLISION_END;
   collided: string;
   data: any;
 };

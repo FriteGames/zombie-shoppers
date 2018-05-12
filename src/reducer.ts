@@ -18,6 +18,7 @@ import { getImages } from "./image";
 import Animation from "./animation";
 
 export default function reducer(state: State, action: Action): State {
+  // console.log(Actions[action.type]);
   return {
     ...state,
     player: playerReducer(state.player, state, action),

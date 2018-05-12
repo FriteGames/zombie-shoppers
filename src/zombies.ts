@@ -24,7 +24,8 @@ function spawn(): Zombie {
     health: 100,
     carryingItem: false,
     sprite: new Animation(images["zombieWalk"], "zombieWalk"),
-    dying: false
+    dying: false,
+    attacking: false
   };
 }
 
@@ -83,7 +84,7 @@ export const zombieReducer = function(
     const lastSpawn = shouldSpawn ? 0 : zombies.lastSpawn + action.delta;
     let spawnedZombies: Array<Zombie> = [...zombies.zombies];
 
-    if (shouldSpawn) {
+    if (shouldSpawn && spawnedZombies.length === 0) {
       spawnedZombies.push(spawn());
     }
 
@@ -99,7 +100,7 @@ export const zombieReducer = function(
         action.delta
       );
 
-      return zombie.dying
+      return zombie.attacking || zombie.dying
         ? { ...zombie }
         : { ...zombie, position, target: destPos };
     });
@@ -119,6 +120,35 @@ export const zombieReducer = function(
         })
       };
     }
+    if (action.collided === "ZOMBIE_PLAYER") {
+      return {
+        ...zombies,
+        zombies: zombies.zombies.map(zombie => {
+          if (zombie.id === action.data.zombie && !zombie.attacking) {
+            return {
+              ...zombie,
+              attacking: true,
+              sprite: new Animation(getImages()["zombieAttack"], "zombieAttack")
+            };
+          }
+          return zombie;
+        })
+      };
+    }
+  } else if (action.type === Actions.COLLISION_END) {
+    return {
+      ...zombies,
+      zombies: zombies.zombies.map(zombie => {
+        if (zombie.id === action.data.zombie && zombie.attacking) {
+          return {
+            ...zombie,
+            attacking: false,
+            sprite: new Animation(getImages()["zombieWalk"], "zombieWalk")
+          };
+        }
+        return zombie;
+      })
+    };
   } else if (action.type === Actions.ZOMBIE_WILL_DIE) {
     return {
       ...zombies,

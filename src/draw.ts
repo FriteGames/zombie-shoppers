@@ -86,14 +86,14 @@ function drawBullets(ctx, bullets: Array<Bullet>) {
 
 function drawZombies(ctx, zombies: Zombies, delta) {
   for (var z of zombies.zombies) {
-    // drawRect(
-    //   ctx,
-    //   z.position.x,
-    //   z.position.y,
-    //   WIDTH["zombie"],
-    //   HEIGHT["zombie"],
-    //   COLORS["zombie"]
-    // );
+    drawRect(
+      ctx,
+      z.position.x,
+      z.position.y,
+      WIDTH["zombie"],
+      HEIGHT["zombie"],
+      COLORS["zombie"]
+    );
 
     // if z moving right, flip
     if (z.position.x < z.target.x) {

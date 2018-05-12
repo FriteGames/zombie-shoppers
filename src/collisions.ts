@@ -46,16 +46,26 @@ const collisions = [
         height: HEIGHT.zombie
       };
       const r2 = {
-        x: state.player.position.x,
-        y: state.player.position.y,
-        width: WIDTH.player,
-        height: HEIGHT.player
+        x: state.player.position.x - 25,
+        y: state.player.position.y - 25,
+        width: WIDTH.player + 25,
+        height: HEIGHT.player + 25
       };
       if (overlaps(r1, r2)) {
         return [
           {
             type: Actions.COLLISION,
-            collided: "ZOMBIE_PLAYER"
+            collided: "ZOMBIE_PLAYER",
+            data: {
+              zombie: z.id
+            }
+          }
+        ];
+      } else if (z.attacking) {
+        return [
+          {
+            type: Actions.COLLISION_END,
+            data: { zombie: z.id }
           }
         ];
       }
