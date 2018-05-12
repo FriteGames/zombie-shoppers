@@ -18,9 +18,8 @@ export default class Animation {
     }
 
     this.elapsed += delta;
-    const fractionalTime = this.elapsed % 1;
     const frameNum = Math.floor(
-      fractionalTime / SECONDS_PER_FRAME * (this.frames.length / FPS)
+      (this.elapsed / SECONDS_PER_FRAME) % this.frames.length
     );
 
     if (frameNum === this.frames.length - 1) {
