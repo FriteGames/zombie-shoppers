@@ -32,7 +32,8 @@ export type Zombie = {
   carryingItem: boolean;
   spawnLocation: Position;
   sprite: Animation;
-  target: Position;
+  target?: Position;
+  dying: boolean;
 };
 
 export type Zombies = {
@@ -119,7 +120,8 @@ export enum Actions {
   ITEM_PICKUP,
   ITEM_DROPPED,
   ITEM_STOLEN,
-  ZOMBIE_KILLED,
+  ZOMBIE_WILL_DIE,
+  ZOMBIE_DID_DIE,
   LIFE_LOST
 }
 
@@ -179,7 +181,7 @@ export type ItemStolenAction = {
 };
 
 export type ZombieKilledAction = {
-  type: Actions.ZOMBIE_KILLED;
+  type: Actions.ZOMBIE_DID_DIE | Actions.ZOMBIE_WILL_DIE;
   zombieId: string;
 };
 

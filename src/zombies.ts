@@ -23,7 +23,8 @@ function spawn(): Zombie {
     spawnLocation: spawnPos,
     health: 100,
     carryingItem: false,
-    sprite: new Animation(images["zombieWalk"])
+    sprite: new Animation(images["zombieWalk"], "zombieWalk"),
+    dying: false
   };
 }
 
@@ -98,7 +99,9 @@ export const zombieReducer = function(
         action.delta
       );
 
-      return { ...zombie, position, target: destPos };
+      return zombie.dying
+        ? { ...zombie }
+        : { ...zombie, position, target: destPos };
     });
 
     return {
@@ -110,13 +113,26 @@ export const zombieReducer = function(
       return {
         ...zombies,
         zombies: zombies.zombies.map(zombie => {
-          return zombie.id === action.data.zombie
+          return zombie.id === action.data.zombie && !zombie.dying
             ? { ...zombie, health: zombie.health - 20 }
             : zombie;
         })
       };
     }
-  } else if (action.type === Actions.ZOMBIE_KILLED) {
+  } else if (action.type === Actions.ZOMBIE_WILL_DIE) {
+    return {
+      ...zombies,
+      zombies: zombies.zombies.map(zombie => {
+        return zombie.id === action.zombieId
+          ? {
+              ...zombie,
+              sprite: new Animation(getImages()["zombieDie"], "zombieDie"),
+              dying: true
+            }
+          : zombie;
+      })
+    };
+  } else if (action.type === Actions.ZOMBIE_DID_DIE) {
     return {
       ...zombies,
       zombies: zombies.zombies.filter(zombie => {

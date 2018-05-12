@@ -4,8 +4,12 @@ const SECONDS_PER_FRAME = 1 / FPS;
 export default class Animation {
   elapsed: number = 0;
   frames = [];
-  constructor(frames) {
+  name = "";
+  playcount = 0;
+
+  constructor(frames, name = "empty") {
     this.frames = frames;
+    this.name = name;
   }
 
   getFrame(delta: number) {
@@ -18,6 +22,11 @@ export default class Animation {
     const frameNum = Math.floor(
       fractionalTime / SECONDS_PER_FRAME * (this.frames.length / FPS)
     );
+
+    if (frameNum === this.frames.length - 1) {
+      this.playcount++;
+    }
+
     return this.frames[frameNum];
   }
 }

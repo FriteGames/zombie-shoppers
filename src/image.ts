@@ -24,6 +24,17 @@ export async function loadImages() {
       require("../img/zombie/7.png"),
       require("../img/zombie/8.png"),
       require("../img/zombie/9.png")
+    ],
+    zombieDie: [
+      require("../img/zombie/die/1.png"),
+      require("../img/zombie/die/2.png"),
+      require("../img/zombie/die/3.png"),
+      require("../img/zombie/die/4.png"),
+      require("../img/zombie/die/5.png"),
+      require("../img/zombie/die/6.png"),
+      require("../img/zombie/die/7.png"),
+      require("../img/zombie/die/8.png"),
+      require("../img/zombie/die/9.png")
     ]
   };
 

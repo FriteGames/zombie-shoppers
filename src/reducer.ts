@@ -69,7 +69,7 @@ function zombiesKilledReducer(
 ): number {
   if (action.type === Actions.LOAD_LEVEL) {
     return 0;
-  } else if (action.type === Actions.ZOMBIE_KILLED) {
+  } else if (action.type === Actions.ZOMBIE_WILL_DIE) {
     return zombiesKilled + 1;
   }
   return zombiesKilled;
@@ -122,7 +122,7 @@ function itemsReducer(
         ? { ...item, carrier: action.carrier, carrierId: action.carrierId }
         : item;
     });
-  } else if (action.type === Actions.ZOMBIE_KILLED) {
+  } else if (action.type === Actions.ZOMBIE_WILL_DIE) {
     return items.map(item => {
       return item.carrier === "zombie" && item.carrierId === action.zombieId
         ? { ...item, carrier: null, carrierId: null }

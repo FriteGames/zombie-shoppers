@@ -60,10 +60,22 @@ const events = [
   },
   (state: State) => {
     for (var z of state.zombies.zombies) {
-      if (z.health <= 0) {
+      if (z.sprite.name === "zombieDie" && z.sprite.playcount == 1) {
         return [
           {
-            type: Actions.ZOMBIE_KILLED,
+            type: Actions.ZOMBIE_DID_DIE,
+            zombieId: z.id
+          }
+        ];
+      }
+    }
+  },
+  (state: State) => {
+    for (var z of state.zombies.zombies) {
+      if (z.sprite.name != "zombieDie" && z.health <= 0) {
+        return [
+          {
+            type: Actions.ZOMBIE_WILL_DIE,
             zombieId: z.id
           }
         ];
