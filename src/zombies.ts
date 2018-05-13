@@ -25,7 +25,8 @@ function spawn(): Zombie {
     carryingItem: false,
     sprite: new Animation(images["zombieWalk"], "zombieWalk"),
     dying: false,
-    attacking: false
+    attacking: false,
+    direction: "right"
   };
 }
 
@@ -66,6 +67,7 @@ function closestTarget(
       return item.position;
     }
   }
+
   return player.position;
 }
 
@@ -102,7 +104,11 @@ export const zombieReducer = function(
 
       return zombie.attacking || zombie.dying
         ? { ...zombie }
-        : { ...zombie, position, target: destPos };
+        : {
+            ...zombie,
+            position,
+            direction: zombie.position.x <= destPos.x ? "right" : "left"
+          };
     });
 
     return {

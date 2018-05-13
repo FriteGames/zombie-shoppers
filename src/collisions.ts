@@ -47,9 +47,9 @@ const collisions = [
       };
       const r2 = {
         x: state.player.position.x - 25,
-        y: state.player.position.y - 25,
-        width: WIDTH.player + 25,
-        height: HEIGHT.player + 25
+        y: state.player.position.y,
+        width: WIDTH.player + 50,
+        height: HEIGHT.player
       };
       if (overlaps(r1, r2)) {
         return [
@@ -79,32 +79,32 @@ const collisions = [
         return item.carrier === "player" || !item.carrier ? true : false;
       });
 
-      for (var i of availableItems) {
-        const r1 = {
-          x: z.position.x,
-          y: z.position.y,
-          width: WIDTH.zombie,
-          height: HEIGHT.zombie
-        };
-        const r2 = {
-          x: i.position.x,
-          y: i.position.y,
-          width: WIDTH.item,
-          height: HEIGHT.item
-        };
-
-        if (overlaps(r1, r2)) {
-          return [
-            {
+      const collisionActions = availableItems
+        .map(item => {
+          const r1 = {
+            x: z.position.x,
+            y: z.position.y,
+            width: WIDTH.zombie,
+            height: HEIGHT.zombie
+          };
+          const r2 = {
+            x: item.position.x,
+            y: item.position.y,
+            width: WIDTH.item,
+            height: HEIGHT.item
+          };
+          if (overlaps(r1, r2)) {
+            return {
               type: Actions.ITEM_PICKUP,
-              itemId: i.id,
+              itemId: item.id,
               carrier: "zombie",
               carrierId: z.id
-            }
-          ];
-        }
-        break;
-      }
+            };
+          }
+        })
+        .filter(action => (action === undefined ? false : true));
+
+      return collisionActions;
     }
   }
 ];

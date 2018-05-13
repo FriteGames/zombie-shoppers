@@ -32,7 +32,7 @@ export type Zombie = {
   carryingItem: boolean;
   spawnLocation: Position;
   sprite: Animation;
-  target?: Position;
+  direction: string;
   dying: boolean;
   attacking: boolean;
 };

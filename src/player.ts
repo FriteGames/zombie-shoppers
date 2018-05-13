@@ -78,7 +78,7 @@ export function playerReducer(
     }
   } else if (action.type === Actions.COLLISION) {
     if (action.collided === "ZOMBIE_PLAYER") {
-      const health = player.health - 1;
+      const health = player.health - 0.1;
       return {
         ...player,
         health

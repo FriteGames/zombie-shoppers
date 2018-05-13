@@ -96,24 +96,24 @@ function drawZombies(ctx, zombies: Zombies, delta) {
     );
 
     // if z moving right, flip
-    if (z.position.x < z.target.x) {
+    if (z.direction === "right") {
       ctx.save();
       ctx.scale(-1, 1);
       ctx.drawImage(
         z.sprite.getFrame(delta),
-        z.position.x * -1 - 128,
+        z.position.x * -1 - 64,
         z.position.y,
-        128,
-        128
+        64,
+        64
       );
       ctx.restore();
     } else {
       ctx.drawImage(
         z.sprite.getFrame(delta),
-        z.position.x,
+        z.position.x - 32,
         z.position.y,
-        128,
-        128
+        64,
+        64
       );
     }
 

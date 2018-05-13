@@ -16,8 +16,12 @@ import loadLevel from "./level";
 import { dirname } from "path";
 import { getImages } from "./image";
 import Animation from "./animation";
+import { initialState } from "./dispatch";
 
-export default function reducer(state: State, action: Action): State {
+export default function reducer(
+  state: State = initialState,
+  action: Action
+): State {
   // console.log(Actions[action.type]);
   return {
     ...state,
@@ -91,8 +95,6 @@ function sceneReducer(scene: Scene, state: State, action) {
     }
   } else if (action.type === Actions.TRANSITION_SCENE) {
     if (action.to === SceneType.GAMEOVER) {
-      console.log("setting scene to gameover");
-      console.log(action);
       return { ...scene, kind: action.to, level: null };
     } else if (action.to === SceneType.MENU) {
       return { ...scene, kind: action.to };
