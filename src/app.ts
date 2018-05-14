@@ -43,7 +43,7 @@ async function init() {
     return { type: Actions.KEYBOARD, key, direction };
   }
 
-  ["w", "s", "a", "d", "space", "p"].forEach(key => {
+  ["w", "s", "a", "d", "space", "p", "shift"].forEach(key => {
     Mousetrap.bind(
       key,
       () => dispatch(createKeyboardAction(key, "down")),
@@ -105,3 +105,5 @@ function gameLoop(timestamp) {
 window.onload = init;
 // window.onload = loadImages;
 //
+
+// note to future zach: instead of treating keyboard events as actions, have keyboard events dispatch actions.

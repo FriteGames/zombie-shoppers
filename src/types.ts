@@ -10,7 +10,10 @@ export type Player = {
   health: number;
   carryingItem: boolean;
   itemCarryingId: string;
-  weapon: Weapon;
+  sprite: Animation;
+  running: boolean;
+  direction: string;
+  firing: boolean;
 };
 
 export type Item = {
@@ -19,10 +22,6 @@ export type Item = {
   carrierId?: string;
   position: Position;
   sprite: Animation;
-};
-
-export type Weapon = {
-  angle: number;
 };
 
 export type Zombie = {
@@ -35,6 +34,12 @@ export type Zombie = {
   direction: string;
   dying: boolean;
   attacking: boolean;
+};
+
+export type Weapon = {
+  type: string; // semi or auto
+  ready: boolean;
+  lastFire: number;
 };
 
 export type Zombies = {
@@ -85,6 +90,7 @@ export type State = {
   zombiesKilled: number;
   livesRemaining: number;
   paused: boolean;
+  weapon: Weapon;
 };
 
 export enum TileType {
@@ -124,7 +130,9 @@ export enum Actions {
   ITEM_STOLEN,
   ZOMBIE_WILL_DIE,
   ZOMBIE_DID_DIE,
-  LIFE_LOST
+  LIFE_LOST,
+  BULLET_FIRED,
+  ATTACK_ENDED
 }
 
 export type LoadLevelAction = {
@@ -139,7 +147,7 @@ export type TimestepAction = {
 
 export type KeyboardAction = {
   type: Actions.KEYBOARD;
-  key: "w" | "a" | "s" | "d" | "space";
+  key: "w" | "a" | "s" | "d" | "space" | "shift";
   direction: "up" | "down";
 };
 
@@ -187,6 +195,13 @@ export type ZombieKilledAction = {
   zombieId: string;
 };
 
+export type BulletFiredAction = {
+  type: Actions.BULLET_FIRED;
+};
+
+export type AttackEndedAction = {
+  type: Actions.ATTACK_ENDED;
+};
 export type Action =
   | LoadLevelAction
   | TimestepAction
@@ -198,4 +213,6 @@ export type Action =
   | ItemPickupAction
   | ItemDroppedAction
   | ItemStolenAction
-  | ZombieKilledAction;
+  | ZombieKilledAction
+  | BulletFiredAction
+  | AttackEndedAction;

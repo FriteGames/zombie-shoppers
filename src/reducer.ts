@@ -16,12 +16,9 @@ import loadLevel from "./level";
 import { dirname } from "path";
 import { getImages } from "./image";
 import Animation from "./animation";
-import { initialState } from "./dispatch";
+import { watch, read } from "fs";
 
-export default function reducer(
-  state: State = initialState,
-  action: Action
-): State {
+export default function reducer(state: State, action: Action): State {
   // console.log(Actions[action.type]);
   return {
     ...state,
@@ -36,8 +33,34 @@ export default function reducer(
     zombiesKilled: zombiesKilledReducer(state.zombiesKilled, state, action),
     itemsStolen: itemsStolenReducer(state.itemsStolen, state, action),
     livesRemaining: livesRemainingReducer(state.livesRemaining, state, action),
-    paused: pausedReducer(state.paused, state, action)
+    paused: pausedReducer(state.paused, state, action),
+    weapon: weaponReducer(state.weapon, state, action)
   };
+}
+
+function weaponReducer(weapon, state, action) {
+  if (action.type === Actions.BULLET_FIRED) {
+    return { ...weapon, ready: false, lastFire: 0 };
+  } else if (action.type === Actions.TIMESTEP) {
+    const lastFire = weapon.lastFire + action.delta;
+    const ready = lastFire > 0.33333;
+    // console.log(`ready? : ${ready}`, lastFire);
+    return {
+      ...weapon,
+      ready,
+      lastFire
+    };
+  } else if (action.type === Actions.KEYBOARD) {
+    if (action.key === "space" && action.direction === "up") {
+      // console.log("RESET WEAPON");
+      return {
+        ...weapon,
+        ready: true,
+        lastFire: 0.33333
+      };
+    }
+  }
+  return weapon;
 }
 
 function pausedReducer(paused: boolean, state: State, action) {
@@ -132,7 +155,7 @@ function itemsReducer(
         : item;
     });
   } else if (action.type === Actions.KEYBOARD) {
-    if (action.key === "space" && action.direction === "down") {
+    if (action.key === "shift" && action.direction === "down") {
       return items.map(item => {
         return item.carrier === "player" ? { ...item, carrier: null } : item;
       });

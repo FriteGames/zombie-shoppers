@@ -2,6 +2,8 @@ import { worldCoordinates, overlaps, getRect } from "./utils";
 import { Player, Position, Action, Actions, State, Item } from "./types";
 import { WIDTH, HEIGHT, WORLD_WIDTH, WORLD_HEIGHT } from "./config";
 import * as _ from "lodash";
+import Animation from "./animation";
+import { getImages } from "./image";
 
 let PLAYER_SPEED = 10;
 
@@ -26,12 +28,6 @@ function playerPosition(pPos: Position, vx: number, vy: number): Position {
   };
 }
 
-function weaponAngle(player: Player, mousePos: Position): number {
-  let dx = mousePos.x - player.position.x;
-  let dy = player.position.y - mousePos.y;
-  return Math.atan2(dx, dy) * 180 / Math.PI;
-}
-
 export function playerReducer(
   player: Player,
   state: State,
@@ -43,10 +39,11 @@ export function playerReducer(
       position: action.level.playerStartPosition,
       health: 100,
       carryingItem: false,
-      itemCarryingId: null
+      itemCarryingId: null,
+      sprite: new Animation(getImages()["playerIdle"], "playerIdle")
     };
   } else if (action.type === Actions.KEYBOARD && !state.paused) {
-    if (action.key === "space" && action.direction === "down") {
+    if (action.key === "shift" && action.direction === "down") {
       const dropItem = player.carryingItem ? true : false;
       const pickupItem: Item = _.find(state.items, item => {
         return overlaps(
@@ -69,6 +66,24 @@ export function playerReducer(
         itemCarryingId: pickupItem ? pickupItem.id : player.itemCarryingId
       };
     }
+    if (action.key === "space") {
+      if (action.direction === "down") {
+        if (!player.firing) {
+          return {
+            ...player,
+            firing: true,
+            sprite: new Animation(getImages()["playerAttack"], "playerAttack")
+          };
+        }
+      } else if (action.direction === "up") {
+        return {
+          ...player,
+          firing: false,
+          running: false,
+          sprite: new Animation(getImages()["playerIdle"], "playerIdle")
+        };
+      }
+    }
   } else if (action.type === Actions.ITEM_PICKUP) {
     if (action.carrier === "zombie") {
       return {
@@ -87,18 +102,28 @@ export function playerReducer(
   } else if (action.type === Actions.TIMESTEP) {
     const vx = state.keysPressed.d ? 1 : state.keysPressed.a ? -1 : 0;
     const vy = state.keysPressed.w ? -1 : state.keysPressed.s ? 1 : 0;
-    const position: Position = playerPosition(player.position, vx, vy);
-    const angle: number = weaponAngle(
-      player,
-      worldCoordinates(state.mousePosition, player.position)
-    );
+    const position: Position = !player.firing
+      ? playerPosition(player.position, vx, vy)
+      : player.position;
+
+    // if running, and !player.running, new run sprite
+    // if not running and player.running, new idle sprite
+    const running = vx != 0 || vy != 0 ? true : false;
+    const direction =
+      vx === -1 ? "left" : vx === 1 ? "right" : player.direction;
+    const sprite =
+      running && !player.running && !player.firing
+        ? new Animation(getImages()["playerRun"], "playerRun")
+        : !running && player.running
+          ? new Animation(getImages()["playerIdle"], "playerIdle")
+          : player.sprite;
 
     return {
       ...player,
       position: position,
-      weapon: {
-        angle: angle
-      }
+      running,
+      sprite,
+      direction
     };
   }
 

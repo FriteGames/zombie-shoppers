@@ -2,7 +2,6 @@ import { WIDTH, HEIGHT, COLORS, SCREEN_WIDTH, SCREEN_HEIGHT } from "./config";
 import {
   State,
   Player,
-  Weapon,
   Zombies,
   Position,
   Item,
@@ -33,15 +32,38 @@ function drawHealth(ctx, x, y, w, h, health) {
   drawRect(ctx, x, y - 20, healthWidth, 10, "green");
 }
 
-function drawPlayer(ctx, player: Player) {
-  drawRect(
-    ctx,
-    player.position.x,
-    player.position.y,
-    WIDTH["player"],
-    HEIGHT["player"],
-    COLORS["player"]
-  );
+function drawPlayer(ctx, player: Player, delta) {
+  const width = WIDTH["player"];
+  const height = HEIGHT["player"];
+  // drawRect(
+  //   ctx,
+  //   player.position.x,
+  //   player.position.y,
+  //   WIDTH["player"],
+  //   HEIGHT["player"],
+  //   COLORS["player"]
+  // );
+
+  if (player.direction === "left") {
+    ctx.save();
+    ctx.scale(-1, 1);
+    ctx.drawImage(
+      player.sprite.getFrame(delta),
+      player.position.x * -1 - width,
+      player.position.y,
+      width,
+      height
+    );
+    ctx.restore();
+  } else {
+    ctx.drawImage(
+      player.sprite.getFrame(delta),
+      player.position.x,
+      player.position.y,
+      width,
+      height
+    );
+  }
 
   drawHealth(
     ctx,
@@ -51,18 +73,6 @@ function drawPlayer(ctx, player: Player) {
     10,
     player.health
   );
-
-  if (!player.carryingItem) {
-    drawAngledRect(
-      ctx,
-      player.position.x,
-      player.position.y,
-      WIDTH["weapon"],
-      HEIGHT["weapon"],
-      player.weapon.angle,
-      COLORS["weapon"]
-    );
-  }
 }
 
 async function drawItems(ctx, items: Array<Item>) {
@@ -86,14 +96,14 @@ function drawBullets(ctx, bullets: Array<Bullet>) {
 
 function drawZombies(ctx, zombies: Zombies, delta) {
   for (var z of zombies.zombies) {
-    drawRect(
-      ctx,
-      z.position.x,
-      z.position.y,
-      WIDTH["zombie"],
-      HEIGHT["zombie"],
-      COLORS["zombie"]
-    );
+    // drawRect(
+    //   ctx,
+    //   z.position.x,
+    //   z.position.y,
+    //   WIDTH["zombie"],
+    //   HEIGHT["zombie"],
+    //   COLORS["zombie"]
+    // );
 
     // if z moving right, flip
     if (z.direction === "right") {
@@ -194,10 +204,10 @@ function drawIntro(ctx, state: State) {
 function drawLevel(ctx, state: State, delta) {
   const drawState = setCameraPosition(state.player.position, state);
   drawState.scene.level.tiles.forEach(tile => drawTile(ctx, tile));
-  drawCrosshair(ctx, drawState.mousePosition);
-  drawPlayer(ctx, drawState.player);
-  drawZombies(ctx, drawState.zombies, delta);
+  // drawCrosshair(ctx, drawState.mousePosition);
   drawBullets(ctx, drawState.bullets);
+  drawPlayer(ctx, drawState.player, delta);
+  drawZombies(ctx, drawState.zombies, delta);
   drawItems(ctx, drawState.items);
   ctx.font = "14px serif";
   ctx.fillStyle = "#000";
@@ -232,6 +242,12 @@ export function draw(ctx, state: State, fps) {
     drawLevel(ctx, state, !state.paused ? 1 / fps : 0);
   } else if (state.scene.kind === SceneType.GAMEOVER) {
     drawGameOver(ctx, state);
+  }
+
+  if (state.paused) {
+    ctx.font = "48px sans-serif";
+    ctx.fillStyle = "#000";
+    ctx.fillText(`PAUSED`, SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2);
   }
 
   ctx.font = "14px serif";

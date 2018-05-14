@@ -12,7 +12,7 @@ export const COLORS = {
 };
 
 export const WIDTH = {
-  player: 32,
+  player: 64,
   weapon: 8,
   bullet: 8,
   zombie: 32,
@@ -20,7 +20,7 @@ export const WIDTH = {
 };
 
 export const HEIGHT = {
-  player: 64,
+  player: 95,
   weapon: 32,
   bullet: 8,
   zombie: 64,

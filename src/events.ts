@@ -88,6 +88,11 @@ const events = [
         return [{ type: Actions.ITEM_STOLEN, zombieId: z.id }];
       }
     }
+  },
+  (state: State) => {
+    if (state.player.firing && state.weapon.ready) {
+      return [{ type: Actions.BULLET_FIRED }];
+    }
   }
 ];
 

@@ -1,6 +1,6 @@
-import { SCREEN_WIDTH, WORLD_WIDTH } from "./config";
-import { distanceFromWorldCenter } from "./utils";
+import { SCREEN_WIDTH, WORLD_WIDTH, WIDTH, HEIGHT } from "./config";
 import { Bullet, State, Position, Action, Actions } from "./types";
+import { worldCoordinates } from "./utils";
 
 const BULLET_SPEED = 500;
 const BULLET_DAMAGE = 50;
@@ -15,11 +15,14 @@ function bulletPosition(bullet: Bullet, delta: number): Position {
   };
 }
 
-function spawnBullet(playerPosition: Position, weaponAngle: number): Bullet {
+function spawnBullet(playerPosition: Position, direction: string): Bullet {
   return {
-    position: playerPosition,
+    position: {
+      x: playerPosition.x + WIDTH["player"] / 2,
+      y: playerPosition.y + HEIGHT["player"] / 2 - 30
+    },
     damage: BULLET_DAMAGE,
-    angle: weaponAngle
+    angle: direction === "left" ? -90 : 90
   };
 }
 
@@ -31,20 +34,14 @@ export function bulletReducer(
   if (action.type === Actions.LOAD_LEVEL) {
     return [];
   } else if (action.type === Actions.TIMESTEP) {
-    let bulletsFired = [...bullets];
-
-    bulletsFired = bulletsFired.map(bullet => {
+    return bullets.map(bullet => {
       const position = bulletPosition(bullet, action.delta);
       return { ...bullet, position };
     });
-
-    if (state.mousePressed && !state.player.carryingItem) {
-      bulletsFired.push(
-        spawnBullet(state.player.position, state.player.weapon.angle)
-      );
-    }
-
-    return bulletsFired;
+  } else if (action.type === Actions.BULLET_FIRED) {
+    return bullets.concat([
+      spawnBullet(state.player.position, state.player.direction)
+    ]);
   } else if (action.type === Actions.COLLISION) {
     if (action.collided === "ZOMBIE_BULLET") {
       let bulletsFired = [...bullets];

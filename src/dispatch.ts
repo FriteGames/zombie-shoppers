@@ -1,6 +1,8 @@
 import { State, Scene, Actions, SceneType } from "./types";
 import reducer from "./reducer";
 import * as _ from "lodash";
+import Animation from "./animation";
+import { getImages } from "./image";
 
 const initialState: State = {
   player: {
@@ -8,9 +10,10 @@ const initialState: State = {
     health: 100,
     carryingItem: false,
     itemCarryingId: null,
-    weapon: {
-      angle: 0
-    }
+    sprite: null,
+    running: false,
+    direction: "right",
+    firing: false
   },
   bullets: [],
   zombies: {
@@ -25,7 +28,8 @@ const initialState: State = {
   zombiesKilled: 0,
   itemsStolen: 0,
   livesRemaining: 1,
-  paused: false
+  paused: false,
+  weapon: { type: "semi", ready: true, lastFire: 0 }
 };
 
 let state: State = initialState;

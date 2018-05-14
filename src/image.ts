@@ -43,6 +43,34 @@ export async function loadImages() {
       require("../img/zombie/attack/7.png"),
       require("../img/zombie/attack/8.png"),
       require("../img/zombie/attack/9.png")
+    ],
+    playerIdle: [
+      require("../img/player/idle/1.png"),
+      require("../img/player/idle/2.png"),
+      require("../img/player/idle/3.png"),
+      require("../img/player/idle/4.png")
+    ],
+    playerRun: [
+      require("../img/player/run/1.png"),
+      require("../img/player/run/2.png"),
+      require("../img/player/run/3.png"),
+      require("../img/player/run/4.png"),
+      require("../img/player/run/5.png"),
+      require("../img/player/run/6.png"),
+      require("../img/player/run/7.png"),
+      require("../img/player/run/8.png"),
+      require("../img/player/run/9.png"),
+      require("../img/player/run/10.png"),
+      require("../img/player/run/11.png"),
+      require("../img/player/run/12.png"),
+      require("../img/player/run/13.png"),
+      require("../img/player/run/14.png")
+    ],
+    playerAttack: [
+      require("../img/player/attack/1.png"),
+      require("../img/player/attack/2.png"),
+      require("../img/player/attack/3.png"),
+      require("../img/player/attack/4.png")
     ]
   };
 
