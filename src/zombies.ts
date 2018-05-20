@@ -10,13 +10,13 @@ import {
 } from "./types";
 import { distance } from "./utils";
 import * as _ from "lodash";
-import { SCREEN_WIDTH } from "./config";
+import { SCREEN_WIDTH, WORLD_WIDTH, WORLD_HEIGHT } from "./config";
 import Animation from "./animation";
 import { getImages } from "./image";
 
 function spawn(): Zombie {
   const images = getImages();
-  const spawnPos = { x: _.random(0, SCREEN_WIDTH), y: 0 };
+  const spawnPos = { x: WORLD_WIDTH, y: _.random(0, WORLD_HEIGHT) };
   return {
     id: _.uniqueId("zombie"),
     position: spawnPos,
@@ -86,7 +86,7 @@ export const zombieReducer = function(
     const lastSpawn = shouldSpawn ? 0 : zombies.lastSpawn + action.delta;
     let spawnedZombies: Array<Zombie> = [...zombies.zombies];
 
-    if (shouldSpawn && spawnedZombies.length === 0) {
+    if (shouldSpawn) {
       spawnedZombies.push(spawn());
     }
 

@@ -43,7 +43,7 @@ async function init() {
     return { type: Actions.KEYBOARD, key, direction };
   }
 
-  ["w", "s", "a", "d", "space", "p", "shift"].forEach(key => {
+  ["w", "s", "a", "d", "space", "p", "shift", "enter"].forEach(key => {
     Mousetrap.bind(
       key,
       () => dispatch(createKeyboardAction(key, "down")),
@@ -88,7 +88,7 @@ function gameLoop(timestamp) {
   } else if (state.scene.kind === SceneType.MENU) {
     // TODO: figure out a way to turn this into an event to listen to
     // problem: there are only events that should be listened for when sceneType is level
-    if (state.keysPressed.space) {
+    if (state.keysPressed.enter) {
       dispatch({ type: Actions.LOAD_LEVEL, level: loadLevel(1) });
     }
   } else if (state.scene.kind === SceneType.GAMEOVER) {

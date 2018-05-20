@@ -4,12 +4,18 @@ import { State, Actions, Scene, SceneType } from "./types";
 import * as _ from "lodash";
 import dispatch from "./dispatch";
 import levelLost from "./levelLost";
+import { WORLD_WIDTH } from "./config";
 
 // TODO: collision detection will happen here too
 
 const events = [
   (state: State) => {
     if (state.zombiesKilled === state.scene.level.zombiesToKill) {
+      const nextLevel = state.scene.level.number + 1;
+      if (nextLevel === 4) {
+        alert("you win");
+      }
+
       return [
         {
           type: Actions.LOAD_LEVEL,
@@ -84,7 +90,7 @@ const events = [
   },
   (state: State) => {
     for (var z of state.zombies.zombies) {
-      if (z.position.y <= 1 && z.carryingItem) {
+      if (z.position.x > WORLD_WIDTH && z.carryingItem) {
         return [{ type: Actions.ITEM_STOLEN, zombieId: z.id }];
       }
     }

@@ -29,7 +29,7 @@ const initialState: State = {
   itemsStolen: 0,
   livesRemaining: 1,
   paused: false,
-  weapon: { type: "semi", ready: true, lastFire: 0 }
+  weapon: { type: "semi", ready: false, lastFire: 0 }
 };
 
 let state: State = initialState;

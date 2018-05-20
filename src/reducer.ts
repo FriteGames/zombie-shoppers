@@ -111,7 +111,7 @@ function sceneReducer(scene: Scene, state: State, action) {
       kind: SceneType.INTRO
     };
   } else if (action.type === Actions.KEYBOARD) {
-    if (action.key === "space" && action.direction === "down") {
+    if (action.key === "enter" && action.direction === "down") {
       if (scene.kind === SceneType.INTRO) {
         return { ...scene, kind: SceneType.LEVEL };
       }

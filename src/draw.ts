@@ -190,15 +190,21 @@ function drawMenu(ctx, state: State) {
   ctx.fillStyle = "#000";
   ctx.fillText("Menu", 100, 100);
   ctx.font = "14px Helvetica";
-  ctx.fillText("Press space to start", 100, 120);
+  ctx.fillText("Press enter to start", 100, 120);
 }
 
 function drawIntro(ctx, state: State) {
   drawRect(ctx, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, "#fff");
-  ctx.font = "48px serif";
+  ctx.font = "48px Helvetica";
   ctx.fillStyle = "#000";
   ctx.fillText(`Level ${state.scene.level.number}`, 10, 50);
-  ctx.fillText(`${state.scene.level.zombiesToKill} zombies`, 100, 100);
+  ctx.fillText(
+    `kill ${state.scene.level.zombiesToKill} zombie shoppers`,
+    10,
+    100
+  );
+  ctx.font = "14px Helvetica";
+  ctx.fillText("Press enter to start", 10, 150);
 }
 
 function drawLevel(ctx, state: State, delta) {
