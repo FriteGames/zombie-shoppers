@@ -72,40 +72,49 @@ const collisions = [
     }
   },
   (state: State) => {
-    for (var z of state.zombies.zombies.filter(z => {
+    const zombiesAvailable = state.zombies.zombies.filter(z => {
       return z.carryingItem === false;
-    })) {
+    });
+
+    let collisionActions = [];
+    let pickedUp = new WeakSet();
+
+    for (var z of zombiesAvailable) {
       const availableItems = state.items.filter(item => {
-        return item.carrier === "player" || !item.carrier ? true : false;
+        return (
+          (item.carrier === "player" || !item.carrier) && !pickedUp.has(item)
+        );
       });
 
-      const collisionActions = availableItems
-        .map(item => {
-          const r1 = {
-            x: z.position.x,
-            y: z.position.y,
-            width: WIDTH.zombie,
-            height: HEIGHT.zombie
-          };
-          const r2 = {
-            x: item.position.x,
-            y: item.position.y,
-            width: WIDTH.item,
-            height: HEIGHT.item
-          };
-          if (overlaps(r1, r2)) {
-            return {
-              type: Actions.ITEM_PICKUP,
-              itemId: item.id,
-              carrier: "zombie",
-              carrierId: z.id
+      collisionActions = collisionActions.concat(
+        availableItems
+          .map(item => {
+            const r1 = {
+              x: z.position.x,
+              y: z.position.y,
+              width: WIDTH.zombie,
+              height: HEIGHT.zombie
             };
-          }
-        })
-        .filter(action => (action === undefined ? false : true));
-
-      return collisionActions;
+            const r2 = {
+              x: item.position.x,
+              y: item.position.y,
+              width: WIDTH.item,
+              height: HEIGHT.item
+            };
+            if (overlaps(r1, r2)) {
+              pickedUp.add(item);
+              return {
+                type: Actions.ITEM_PICKUP,
+                itemId: item.id,
+                carrier: "zombie",
+                carrierId: z.id
+              };
+            }
+          })
+          .filter(action => (action === undefined ? false : true))
+      );
     }
+    return collisionActions;
   }
 ];
 
